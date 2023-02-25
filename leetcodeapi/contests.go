@@ -59,3 +59,60 @@ func GetContestInfo(contestSlug string) (ContestInfoResponseBody, error) {
 /*
 -----------------------------------------------------
 */
+
+type ParticipantDetails struct {
+	ContestId     int    `json:"contest_id"`
+	CountryCode   string `json:"country_code"`
+	CountryName   string `json:"country_name"`
+	DataRegion    string `json:"data_region"`
+	FinishTime    int64  `json:"finish_time"`
+	GlobalRanking int    `json:"global_ranking"`
+	Rank          int    `json:"rank"`
+	Score         int    `json:"score"`
+	UserBadge     struct {
+		DisplayName string `json:"display_name"`
+		Icon        string `json:"icon"`
+	} `json:"user_badge"`
+	UserSlug      string `json:"user_slug"`
+	Username      string `json:"username"`
+	UsernameColor string `json:"username_color"`
+}
+
+type Submission struct {
+	ContestId    int    `json:"contest_id"`
+	DataRegion   string `json:"data_region"`
+	Date         int64  `json:"date"`
+	FailCount    int    `json:"fail_count"`
+	Id           int    `json:"id"`
+	QuestionId   int    `json:"question_id"`
+	Status       int    `json:"status"`
+	SubmissionId int64  `json:"submission_id"`
+}
+
+type ContestRankingResponseBody struct {
+	IsPast      bool                    `json:"is_past"`
+	Questions   []ContestProblemInfo    `json:"questions"`
+	Ranks       []ParticipantDetails    `json:"total_rank"`
+	Submissions []map[string]Submission `json:"submissions"`
+	Time        float64                 `json:"time"`
+	TotalUser   int                     `json:"user_num"`
+	TotalPage   int
+}
+
+func GetContestRanking(contestSlug string, page int) (ContestRankingResponseBody, error) {
+	var result ContestRankingResponseBody
+	err := makeHttpRequest(
+		"GET",
+		fmt.Sprintf("https://leetcode.com/contest/api/ranking/%v/?pagination=%v&region=global", contestSlug, page),
+		"application/json",
+		"",
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return ContestRankingResponseBody{}, err
+	}
+
+	return result, nil
+}
