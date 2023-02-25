@@ -113,3 +113,25 @@ func GetProblemsByTopic(topicSlug string) (ProblemsByTopicResponseBody, error) {
 
 	return result, nil
 }
+
+/*
+-----------------------------------------------------
+*/
+
+func GetTopInterviewProblems() (ProblemsetListResponseBody, error) {
+	var result ProblemsetListResponseBody
+	err := makeHttpRequest(
+		"GET",
+		"https://leetcode.com/graphql/",
+		"application/json",
+		getGraphQLPayloadTopInterviewProblems(),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return ProblemsetListResponseBody{}, err
+	}
+
+	return result, nil
+}
