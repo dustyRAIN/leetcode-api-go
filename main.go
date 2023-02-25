@@ -10,5 +10,6 @@ func main() {
 	//fmt.Println(leetcodeapi.GetAllProblems())
 	//fmt.Println(leetcodeapi.GetProblemContentByTitleSlug("find-first-and-last-position-of-element-in-sorted-array"))
 	//fmt.Println(leetcodeapi.GetProblemsByTopic("hash-table"))
-	fmt.Println(leetcodeapi.GetTopInterviewProblems())
+	//fmt.Println(leetcodeapi.GetTopInterviewProblems())
+	fmt.Println(leetcodeapi.GetContestInfo("weekly-contest-333"))
 }
