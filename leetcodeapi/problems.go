@@ -36,13 +36,7 @@ type ProblemsetListResponseBody struct {
 
 func GetAllProblems() (ProblemsetListResponseBody, error) {
 	var result ProblemsetListResponseBody
-	err := makeHttpRequest(
-		"GET",
-		"https://leetcode.com/graphql/",
-		"application/json",
-		getGraphQLPayloadAllProblems(),
-		&result,
-	)
+	err := MakeGraphQLRequest(getGraphQLPayloadAllProblems(), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
@@ -66,13 +60,7 @@ type ProblemContentResponseBody struct {
 
 func GetProblemContentByTitleSlug(titleSlug string) (ProblemContentResponseBody, error) {
 	var result ProblemContentResponseBody
-	err := makeHttpRequest(
-		"GET",
-		"https://leetcode.com/graphql/",
-		"application/json",
-		getGraphQLPayloadProblemContent(titleSlug),
-		&result,
-	)
+	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(titleSlug), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
@@ -98,13 +86,7 @@ type ProblemsByTopicResponseBody struct {
 
 func GetProblemsByTopic(topicSlug string) (ProblemsByTopicResponseBody, error) {
 	var result ProblemsByTopicResponseBody
-	err := makeHttpRequest(
-		"GET",
-		"https://leetcode.com/graphql/",
-		"application/json",
-		getGraphQLPayloadProblemsByTopic(topicSlug),
-		&result,
-	)
+	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(getGraphQLPayloadProblemsByTopic(topicSlug)), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
@@ -120,13 +102,7 @@ func GetProblemsByTopic(topicSlug string) (ProblemsByTopicResponseBody, error) {
 
 func GetTopInterviewProblems() (ProblemsetListResponseBody, error) {
 	var result ProblemsetListResponseBody
-	err := makeHttpRequest(
-		"GET",
-		"https://leetcode.com/graphql/",
-		"application/json",
-		getGraphQLPayloadTopInterviewProblems(),
-		&result,
-	)
+	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(getGraphQLPayloadTopInterviewProblems()), &result)
 
 	if err != nil {
 		log.Printf(err.Error())

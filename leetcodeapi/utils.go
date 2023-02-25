@@ -45,3 +45,15 @@ func makeHttpRequest(method string, url string, contentType string, body string,
 
 	return err
 }
+
+func MakeGraphQLRequest(payload string, resultRef interface{}) error {
+	err := makeHttpRequest(
+		"GET",
+		"https://leetcode.com/graphql/",
+		"application/json",
+		payload,
+		&resultRef,
+	)
+
+	return err
+}
