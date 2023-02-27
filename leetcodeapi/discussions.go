@@ -3,15 +3,12 @@ package leetcodeapi
 import "log"
 
 type DiscussionNode struct {
-	CommentCount int    `json:"commentCount"`
-	Id           string `json:"id"`
-	LastComment  struct {
-		Id   int  `json:"id"`
-		Post Post `json:"post"`
-	} `json:"lastComment"`
-	Pinned bool `json:"pinned"`
-	Post   Post `json:"post"`
-	Tags   []struct {
+	CommentCount int     `json:"commentCount"`
+	Id           string  `json:"id"`
+	LastComment  Comment `json:"lastComment"`
+	Pinned       bool    `json:"pinned"`
+	Post         Post    `json:"post"`
+	Tags         []struct {
 		Name string `json:"name"`
 		Slug string `json:"slug"`
 	} `json:"tags"`
@@ -19,20 +16,22 @@ type DiscussionNode struct {
 	ViewCount int    `json:"viewCount"`
 }
 
-type DiscussionListResponseBody struct {
+type DiscussionList struct {
+	Data []struct {
+		Cursor string         `json:"cursor"`
+		Node   DiscussionNode `json:"node"`
+	} `json:"edges"`
+	TotalNum int `json:"totalNum"`
+}
+
+type discussionListResponseBody struct {
 	Data struct {
-		CategoryTopicList struct {
-			Edges []struct {
-				Cursor string         `json:"cursor"`
-				Node   DiscussionNode `json:"node"`
-			} `json:"edges"`
-			TotalNum int `json:"totalNum"`
-		} `josn:"categoryTopicList"`
+		CategoryTopicList DiscussionList `josn:"categoryTopicList"`
 	} `json:"data"`
 }
 
-func GetDiscussions(categories []string, tags []string, orderBy string, searchQuery string, offset int) (DiscussionListResponseBody, error) {
-	var result DiscussionListResponseBody
+func GetDiscussions(categories []string, tags []string, orderBy string, searchQuery string, offset int) (DiscussionList, error) {
+	var result discussionListResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadDiscussionList(categories, tags, orderBy, searchQuery, offset),
 		&result,
@@ -40,66 +39,74 @@ func GetDiscussions(categories []string, tags []string, orderBy string, searchQu
 
 	if err != nil {
 		log.Printf(err.Error())
-		return DiscussionListResponseBody{}, err
+		return DiscussionList{}, err
 	}
 
-	return result, nil
+	return result.Data.CategoryTopicList, nil
+}
+
+type Badge struct {
+	DisplayName string `json:"displayName,omitempty"`
+	Icon        string `json:"icon,omitempty"`
+}
+
+type AuthorProfile struct {
+	Reputation int    `json:"reputation,omitempty"`
+	UserAvatar string `json:"userAvatar,omitempty"`
 }
 
 type Author struct {
-	ActiveBadge struct {
-		DisplayName string `json:"displayName,omitempty"`
-		Icon        string `json:"icon,omitempty"`
-	} `json:"activeBadge,omitempty"`
-	IsActive       bool   `json:"isActive,omitempty"`
-	IsDiscussAdmin bool   `json:"isDiscussAdmin,omitempty"`
-	IsDiscussStaff bool   `json:"isDiscussStaff,omitempty"`
-	NameColor      string `json:"nameColor,omitempty"`
-	Profile        struct {
-		Reputation int    `json:"reputation,omitempty"`
-		UserAvatar string `json:"userAvatar,omitempty"`
-	} `json:"profile,omitempty"`
-	Username string `json:"username"`
+	ActiveBadge    Badge         `json:"activeBadge,omitempty"`
+	IsActive       bool          `json:"isActive,omitempty"`
+	IsDiscussAdmin bool          `json:"isDiscussAdmin,omitempty"`
+	IsDiscussStaff bool          `json:"isDiscussStaff,omitempty"`
+	NameColor      string        `json:"nameColor,omitempty"`
+	Profile        AuthorProfile `json:"profile,omitempty"`
+	Username       string        `json:"username"`
+}
+
+type CoinReward struct {
+	Date        string `json:"date"`
+	Description string `json:"description"`
+	Id          string `json:"id"`
+	Score       int    `json:"score"`
 }
 
 type Post struct {
-	Id                int    `json:"id"`
-	Author            Author `json:"author,omitempty"`
-	AuthorIsModerator bool   `json:"authorIsModerator,omitempty"`
-	CoinRewards       []struct {
-		Date        string `json:"date"`
-		Description string `json:"description"`
-		Id          string `json:"id"`
-		Score       int    `json:"score"`
-	} `json:"coinRewards,omitempty"`
-	Content      string `json:"content,omitempty"`
-	CreationDate int64  `json:"creationDate,omitempty"`
-	IsHidden     bool   `json:"isHidden,omitempty"`
-	IsOwnPost    bool   `json:"isOwnPost,omitempty"`
-	Status       string `json:"status,omitempty"`
-	UpdationDate int64  `json:"updationDate,omitempty"`
-	VoteCount    int    `json:"voteCount,omitempty"`
-	VoteStatus   int    `json:"voteStatus,omitempty"`
+	Id                int          `json:"id"`
+	Author            Author       `json:"author,omitempty"`
+	AuthorIsModerator bool         `json:"authorIsModerator,omitempty"`
+	CoinRewards       []CoinReward `json:"coinRewards,omitempty"`
+	Content           string       `json:"content,omitempty"`
+	CreationDate      int64        `json:"creationDate,omitempty"`
+	IsHidden          bool         `json:"isHidden,omitempty"`
+	IsOwnPost         bool         `json:"isOwnPost,omitempty"`
+	Status            string       `json:"status,omitempty"`
+	UpdationDate      int64        `json:"updationDate,omitempty"`
+	VoteCount         int          `json:"voteCount,omitempty"`
+	VoteStatus        int          `json:"voteStatus,omitempty"`
 }
 
-type DiscussionResponseBody struct {
+type Discussion struct {
+	HideFromTrending     bool     `json:"hideFromTrending"`
+	Id                   int64    `json:"id"`
+	Pinned               bool     `json:"pinned"`
+	Post                 Post     `json:"post"`
+	Subscribed           bool     `json:"subscribed"`
+	Tags                 []string `json:"tags"`
+	Title                string   `json:"title"`
+	TopLevelCommentCount int      `json:"topLevelCommentCount"`
+	ViewCount            int      `json:"viewCount"`
+}
+
+type discussionResponseBody struct {
 	Data struct {
-		Topic struct {
-			HideFromTrending     bool     `json:"hideFromTrending"`
-			Id                   int64    `json:"id"`
-			Pinned               bool     `json:"pinned"`
-			Post                 Post     `json:"post"`
-			Subscribed           bool     `json:"subscribed"`
-			Tags                 []string `json:"tags"`
-			Title                string   `json:"title"`
-			TopLevelCommentCount int      `json:"topLevelCommentCount"`
-			ViewCount            int      `json:"viewCount"`
-		} `josn:"topic"`
+		Topic Discussion `josn:"topic"`
 	} `json:"data"`
 }
 
-func GetDiscussion(topicId int64) (DiscussionResponseBody, error) {
-	var result DiscussionResponseBody
+func GetDiscussion(topicId int64) (Discussion, error) {
+	var result discussionResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadDiscussion(topicId),
 		&result,
@@ -107,20 +114,20 @@ func GetDiscussion(topicId int64) (DiscussionResponseBody, error) {
 
 	if err != nil {
 		log.Printf(err.Error())
-		return DiscussionResponseBody{}, err
+		return Discussion{}, err
 	}
 
-	return result, nil
+	return result.Data.Topic, nil
 }
 
 type Comment struct {
-	Id          int64 `json:"id"`
-	NumChildren int   `json:"numChildren"`
-	Pinned      bool  `json:"pinned"`
+	Id          int64 `json:"id,omitempty"`
+	NumChildren int   `json:"numChildren,omitempty"`
+	Pinned      bool  `json:"pinned,omitempty"`
 	Post        Post  `json:"post"`
 }
 
-type DiscussionCommentsResponseBody struct {
+type discussionCommentsResponseBody struct {
 	Data struct {
 		TopicComments struct {
 			Data []Comment `json:"data"`
@@ -128,8 +135,8 @@ type DiscussionCommentsResponseBody struct {
 	} `json:"data"`
 }
 
-func GetDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) (DiscussionCommentsResponseBody, error) {
-	var result DiscussionCommentsResponseBody
+func GetDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) ([]Comment, error) {
+	var result discussionCommentsResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadDiscussionComments(topicId, orderBy, offset, pageSize),
 		&result,
@@ -137,20 +144,20 @@ func GetDiscussionComments(topicId int64, orderBy string, offset int, pageSize i
 
 	if err != nil {
 		log.Printf(err.Error())
-		return DiscussionCommentsResponseBody{}, err
+		return []Comment{}, err
 	}
 
-	return result, nil
+	return result.Data.TopicComments.Data, nil
 }
 
-type CommentRepliesResponseBody struct {
+type commentRepliesResponseBody struct {
 	Data struct {
 		CommentReplies []Comment `josn:"commentReplies"`
 	} `json:"data"`
 }
 
-func GetCommentReplies(commentId int64) (CommentRepliesResponseBody, error) {
-	var result CommentRepliesResponseBody
+func GetCommentReplies(commentId int64) ([]Comment, error) {
+	var result commentRepliesResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadCommentReplies(commentId),
 		&result,
@@ -158,8 +165,8 @@ func GetCommentReplies(commentId int64) (CommentRepliesResponseBody, error) {
 
 	if err != nil {
 		log.Printf(err.Error())
-		return CommentRepliesResponseBody{}, err
+		return []Comment{}, err
 	}
 
-	return result, nil
+	return result.Data.CommentReplies, nil
 }
