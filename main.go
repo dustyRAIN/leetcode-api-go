@@ -16,5 +16,6 @@ func main() {
 	//fmt.Println(leetcodeapi.GetDiscussions([]string{"interview-experience"}, []string{}, "", "google", 0))
 	//fmt.Println(leetcodeapi.GetDiscussion(1674246))
 	//fmt.Println(leetcodeapi.GetDiscussionComments(2069641, "best", 0, 10))
-	fmt.Println(leetcodeapi.GetCommentReplies(1404906))
+	//fmt.Println(leetcodeapi.GetCommentReplies(1404906))
+	fmt.Println(leetcodeapi.GetUserPublicProfile("dustyRAIN"))
 }
