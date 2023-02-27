@@ -142,3 +142,24 @@ func GetDiscussionComments(topicId int64, orderBy string, offset int, pageSize i
 
 	return result, nil
 }
+
+type CommentRepliesResponseBody struct {
+	Data struct {
+		CommentReplies []Comment `josn:"commentReplies"`
+	} `json:"data"`
+}
+
+func GetCommentReplies(commentId int64) (CommentRepliesResponseBody, error) {
+	var result CommentRepliesResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadCommentReplies(commentId),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return CommentRepliesResponseBody{}, err
+	}
+
+	return result, nil
+}
