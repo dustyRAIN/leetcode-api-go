@@ -12,5 +12,6 @@ func main() {
 	//fmt.Println(leetcodeapi.GetProblemsByTopic("hash-table"))
 	//fmt.Println(leetcodeapi.GetTopInterviewProblems())
 	//fmt.Println(leetcodeapi.GetContestInfo("weekly-contest-333"))
-	fmt.Println(leetcodeapi.GetContestRanking("weekly-contest-333", 1))
+	//fmt.Println(leetcodeapi.GetContestRanking("weekly-contest-333", 1))
+	fmt.Println(leetcodeapi.GetDiscussions([]string{"interview-experience"}, []string{}, "", "", 0))
 }

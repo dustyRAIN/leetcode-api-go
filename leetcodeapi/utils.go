@@ -57,3 +57,15 @@ func MakeGraphQLRequest(payload string, resultRef interface{}) error {
 
 	return err
 }
+
+func convertListToString(list []string) string {
+	var listString string = "["
+	for indx, item := range list {
+		if indx > 0 {
+			listString += ","
+		}
+		listString += fmt.Sprintf("\"%v\"", item)
+	}
+	listString += "]"
+	return listString
+}
