@@ -25,89 +25,95 @@ type Problem struct {
 	TopicTags          []TopicTag `json:"topicTags"`
 }
 
-type ProblemsetListResponseBody struct {
+type ProblemList struct {
+	Total    int       `json:"total"`
+	Problems []Problem `json:"questions"`
+}
+
+type problemsetListResponseBody struct {
 	Data struct {
-		ProblemsetQuestionList struct {
-			Total     int       `json:"total"`
-			Questions []Problem `json:"questions"`
-		} `josn:"problemsetQuestionList"`
+		ProblemsetQuestionList ProblemList `josn:"problemsetQuestionList"`
 	} `json:"data"`
 }
 
-func GetAllProblems() (ProblemsetListResponseBody, error) {
-	var result ProblemsetListResponseBody
+func GetAllProblems() (ProblemList, error) {
+	var result problemsetListResponseBody
 	err := MakeGraphQLRequest(getGraphQLPayloadAllProblems(), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
-		return ProblemsetListResponseBody{}, err
+		return ProblemList{}, err
 	}
 
-	return result, nil
+	return result.Data.ProblemsetQuestionList, nil
 }
 
 /*
 -----------------------------------------------------
 */
 
-type ProblemContentResponseBody struct {
+type ProblemContent struct {
+	Content string `json:"content"`
+}
+
+type problemContentResponseBody struct {
 	Data struct {
-		Question struct {
-			Content string `json:"content"`
-		} `json:"question"`
+		Question ProblemContent `json:"question"`
 	} `json:"data"`
 }
 
-func GetProblemContentByTitleSlug(titleSlug string) (ProblemContentResponseBody, error) {
-	var result ProblemContentResponseBody
+func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
+	var result problemContentResponseBody
 	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(titleSlug), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
-		return ProblemContentResponseBody{}, err
+		return ProblemContent{}, err
 	}
 
-	return result, nil
+	return result.Data.Question, nil
 }
 
 /*
 -----------------------------------------------------
 */
 
-type ProblemsByTopicResponseBody struct {
+type ProblemsByTopic struct {
+	TopicName string    `json:"name"`
+	TopicSlug string    `json:"slug"`
+	Questions []Problem `json:"questions"`
+}
+
+type problemsByTopicResponseBody struct {
 	Data struct {
-		TopicTag struct {
-			Name      string    `json:"name"`
-			Slug      string    `json:"slug"`
-			Questions []Problem `json:"questions"`
-		} `josn:"topicTag"`
+		TopicTag ProblemsByTopic `josn:"topicTag"`
 	} `json:"data"`
 }
 
-func GetProblemsByTopic(topicSlug string) (ProblemsByTopicResponseBody, error) {
-	var result ProblemsByTopicResponseBody
+func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
+	var result problemsByTopicResponseBody
 	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(getGraphQLPayloadProblemsByTopic(topicSlug)), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
-		return ProblemsByTopicResponseBody{}, err
+		return ProblemsByTopic{}, err
 	}
 
-	return result, nil
+	return result.Data.TopicTag, nil
 }
 
 /*
 -----------------------------------------------------
 */
 
-func GetTopInterviewProblems() (ProblemsetListResponseBody, error) {
-	var result ProblemsetListResponseBody
+func GetTopInterviewProblems() (ProblemList, error) {
+	var result problemsetListResponseBody
 	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(getGraphQLPayloadTopInterviewProblems()), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
-		return ProblemsetListResponseBody{}, err
+		return ProblemList{}, err
 	}
 
-	return result, nil
+	return result.Data.ProblemsetQuestionList, nil
 }
