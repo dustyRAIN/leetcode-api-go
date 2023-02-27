@@ -2,47 +2,6 @@ package leetcodeapi
 
 import "log"
 
-type UserProfile struct {
-	AboutMe                  string   `json:"aboutMe"`
-	CategoryDiscussCount     int      `json:"categoryDiscussCount"`
-	CategoryDiscussCountDiff int      `json:"categoryDiscussCountDiff"`
-	Company                  string   `json:"company"`
-	CountryName              string   `json:"countryName"`
-	JobTitle                 string   `json:"jobTitle"`
-	PostViewCount            int      `json:"postViewCount"`
-	PostViewCountDiff        int      `json:"postViewCountDiff"`
-	Ranking                  int      `json:"ranking"`
-	RealName                 string   `json:"realName"`
-	Reputation               int      `json:"reputation"`
-	ReputationDiff           int      `json:"reputationDiff"`
-	School                   string   `json:"school"`
-	SkillTags                []string `json:"skillTags"`
-	SolutionCount            int      `json:"solutionCount"`
-	SolutionCountDiff        int      `json:"solutionCountDiff"`
-	UserAvatar               string   `json:"userAvatar"`
-	Websites                 []string `json:"websites"`
-}
-
-type UserPublicProfile struct {
-	ContestBadge struct {
-		Expired   bool   `json:"expired"`
-		HoverText string `json:"hoverText"`
-		Icon      string `json:"icon"`
-		Name      string `json:"name"`
-	} `json:"contestBadge"`
-	GithubUrl   string      `json:"githubUrl"`
-	LinkedinUrl string      `json:"linkedinUrl"`
-	Profile     UserProfile `json:"profile"`
-	TwitterUrl  string      `json:"twitterUrl"`
-	Username    string      `json:"username"`
-}
-
-type userPublicProfileReponseBody struct {
-	Data struct {
-		MatchedUser UserPublicProfile `json:"matchedUser"`
-	} `json:"data"`
-}
-
 func GetUserPublicProfile(username string) (UserPublicProfile, error) {
 	var result userPublicProfileReponseBody
 	err := MakeGraphQLRequest(
@@ -56,26 +15,6 @@ func GetUserPublicProfile(username string) (UserPublicProfile, error) {
 	}
 
 	return result.Data.MatchedUser, nil
-}
-
-type TagCount struct {
-	ProblemsSolved int    `json:"problemsSolved"`
-	TagName        string `json:"tagName"`
-	TagSlug        string `json:"tagSlug"`
-}
-
-type TagProblemCounts struct {
-	Advanced     []TagCount `json:"advanced"`
-	Fundamental  []TagCount `json:"fundamental"`
-	Intermediate []TagCount `json:"intermediate"`
-}
-
-type userSolveCountByTagResponseBody struct {
-	Data struct {
-		MatchedUser struct {
-			TagProblemCounts TagProblemCounts `json:"tagProblemCounts"`
-		} `json:"matchedUser"`
-	} `json:"data"`
 }
 
 func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
@@ -107,26 +46,6 @@ type UserContestRankingHistory struct {
 	TrendDirection      string  `json:"trendDirection"`
 }
 
-type UserContestRanking struct {
-	AttendedContestsCount int `json:"attendedContestsCount"`
-	Badge                 struct {
-		Name string `json:"name"`
-	} `json:"badge"`
-	GlobalRanking     int     `json:"globalRanking"`
-	Rating            float32 `json:"rating"`
-	TopPercentage     float32 `json:"topPercentage"`
-	TotalParticipants int     `json:"totalParticipants"`
-}
-
-type UserContestRankingDetails struct {
-	UserContestRanking        UserContestRanking          `json:"userContestRanking"`
-	UserContestRankingHistory []UserContestRankingHistory `json:"userContestRankingHistory"`
-}
-
-type userContestRankingHistoryResponseBody struct {
-	Data UserContestRankingDetails `json:"data"`
-}
-
 func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
 	var result userContestRankingHistoryResponseBody
 	err := MakeGraphQLRequest(
@@ -140,32 +59,6 @@ func GetUserContestRankingHistory(username string) (UserContestRankingDetails, e
 	}
 
 	return result.Data, nil
-}
-
-type DifficultyCount struct {
-	Count      int    `json:"count"`
-	Difficulty string `json:"difficulty"`
-}
-
-type DifficultyPercentage struct {
-	Percentage float32 `json:"percentage"`
-	Difficulty string  `json:"difficulty"`
-}
-
-type UserSolveCountByDifficulty struct {
-	ProblemsSolvedBeatsStats []DifficultyPercentage `json:"problemsSolvedBeatsStats"`
-	SubmitStatsGlobal        struct {
-		AcSubmissionNum []DifficultyCount `json:"acSubmissionNum"`
-	} `json:"submitStatsGlobal"`
-}
-
-type UserSolveCountByDifficultyDetails struct {
-	AllQuestionsCount     []DifficultyCount          `json:"allQuestionsCount"`
-	MatchedUserSolveCount UserSolveCountByDifficulty `json:"matchedUser"`
-}
-
-type userSolveCountByDifficultyResponseBody struct {
-	Data UserSolveCountByDifficultyDetails `json:"data"`
 }
 
 func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
@@ -218,19 +111,6 @@ func GetUserProfileCalendar(username string) (UserCalendar, error) {
 	}
 
 	return result.Data.MatchedUser.UserCalendar, nil
-}
-
-type AcSubmission struct {
-	Id        string `json:"id"`
-	Timestamp string `json:"timestamp"`
-	Title     string `json:"title"`
-	TitleSlug string `json:"titleSlug"`
-}
-
-type userRecentAcSubmissionsResponseBody struct {
-	Data struct {
-		RecentAcSubmissionList []AcSubmission `json:"recentAcSubmissionList"`
-	} `json:"data"`
 }
 
 func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {

@@ -1,21 +1,16 @@
 package leetcodeapi
 
-type LeetcodeMeta struct {
-	session   string
-	csrfToken string
-}
-
-var leetcodeMeta = LeetcodeMeta{
+var credentials = leetcodeMeta{
 	session:   "",
 	csrfToken: "",
 }
 
 func SetCredentials(session string, csrfToken string) {
-	leetcodeMeta.session = session
-	leetcodeMeta.csrfToken = csrfToken
+	credentials.session = session
+	credentials.csrfToken = csrfToken
 }
 
 func RemoveCredentials() {
-	leetcodeMeta.session = ""
-	leetcodeMeta.csrfToken = ""
+	credentials.session = ""
+	credentials.csrfToken = ""
 }
