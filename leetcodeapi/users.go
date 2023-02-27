@@ -205,3 +205,31 @@ func GetUserProfileCalendar(username string) (UserProfileCalendarResponseBody, e
 
 	return result, nil
 }
+
+type AcSubmission struct {
+	Id        string `json:"id"`
+	Timestamp string `json:"timestamp"`
+	Title     string `json:"title"`
+	TitleSlug string `json:"titleSlug"`
+}
+
+type UserRecentAcSubmissionsResponseBody struct {
+	Data struct {
+		RecentAcSubmissionList []AcSubmission `json:"recentAcSubmissionList"`
+	} `json:"data"`
+}
+
+func GetUserRecentAcSubmissions(username string, pageSize int) (UserRecentAcSubmissionsResponseBody, error) {
+	var result UserRecentAcSubmissionsResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadUserRecentAcSubmissions(username, pageSize),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return UserRecentAcSubmissionsResponseBody{}, err
+	}
+
+	return result, nil
+}

@@ -152,3 +152,13 @@ func getGraphQLPayloadUserProfileCalendar(username string) string {
 	    }
 	}`, username)
 }
+
+func getGraphQLPayloadUserRecentAcSubmissions(username string, pageSize int) string {
+	return fmt.Sprintf(`{
+	    "query": "\n    query recentAcSubmissions($username: String!, $limit: Int!) {\n  recentAcSubmissionList(username: $username, limit: $limit) {\n    id\n    title\n    titleSlug\n    timestamp\n  }\n}\n    ",
+	    "variables": {
+	        "username": "%v",
+	        "limit": %v
+	    }
+	}`, username, pageSize)
+}

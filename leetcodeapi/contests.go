@@ -78,7 +78,7 @@ type ParticipantDetails struct {
 	UsernameColor string `json:"username_color"`
 }
 
-type Submission struct {
+type SubmissionInContest struct {
 	ContestId    int    `json:"contest_id"`
 	DataRegion   string `json:"data_region"`
 	Date         int64  `json:"date"`
@@ -90,12 +90,12 @@ type Submission struct {
 }
 
 type ContestRankingResponseBody struct {
-	IsPast      bool                    `json:"is_past"`
-	Questions   []ContestProblemInfo    `json:"questions"`
-	Ranks       []ParticipantDetails    `json:"total_rank"`
-	Submissions []map[string]Submission `json:"submissions"`
-	Time        float64                 `json:"time"`
-	TotalUser   int                     `json:"user_num"`
+	IsPast      bool                             `json:"is_past"`
+	Questions   []ContestProblemInfo             `json:"questions"`
+	Ranks       []ParticipantDetails             `json:"total_rank"`
+	Submissions []map[string]SubmissionInContest `json:"submissions"`
+	Time        float64                          `json:"time"`
+	TotalUser   int                              `json:"user_num"`
 	TotalPage   int
 }
 
