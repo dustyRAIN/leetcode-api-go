@@ -63,18 +63,23 @@ type Author struct {
 }
 
 type Post struct {
-	Id                int      `json:"id"`
-	Author            Author   `json:"author,omitempty"`
-	AuthorIsModerator bool     `json:"authorIsModerator,omitempty"`
-	CoinRewards       []string `json:"coinRewards,omitempty"`
-	Content           string   `json:"content,omitempty"`
-	CreationDate      int64    `json:"creationDate,omitempty"`
-	IsHidden          bool     `json:"isHidden,omitempty"`
-	IsOwnPost         bool     `json:"isOwnPost,omitempty"`
-	Status            string   `json:"status,omitempty"`
-	UpdationDate      int64    `json:"updationDate,omitempty"`
-	VoteCount         int      `json:"voteCount,omitempty"`
-	VoteStatus        int      `json:"voteStatus,omitempty"`
+	Id                int    `json:"id"`
+	Author            Author `json:"author,omitempty"`
+	AuthorIsModerator bool   `json:"authorIsModerator,omitempty"`
+	CoinRewards       []struct {
+		Date        string `json:"date"`
+		Description string `json:"description"`
+		Id          string `json:"id"`
+		Score       int    `json:"score"`
+	} `json:"coinRewards,omitempty"`
+	Content      string `json:"content,omitempty"`
+	CreationDate int64  `json:"creationDate,omitempty"`
+	IsHidden     bool   `json:"isHidden,omitempty"`
+	IsOwnPost    bool   `json:"isOwnPost,omitempty"`
+	Status       string `json:"status,omitempty"`
+	UpdationDate int64  `json:"updationDate,omitempty"`
+	VoteCount    int    `json:"voteCount,omitempty"`
+	VoteStatus   int    `json:"voteStatus,omitempty"`
 }
 
 type DiscussionResponseBody struct {
@@ -103,6 +108,36 @@ func GetDiscussion(topicId int64) (DiscussionResponseBody, error) {
 	if err != nil {
 		log.Printf(err.Error())
 		return DiscussionResponseBody{}, err
+	}
+
+	return result, nil
+}
+
+type Comment struct {
+	Id          int64 `json:"id"`
+	NumChildren int   `json:"numChildren"`
+	Pinned      bool  `json:"pinned"`
+	Post        Post  `json:"post"`
+}
+
+type DiscussionCommentsResponseBody struct {
+	Data struct {
+		TopicComments struct {
+			Data []Comment `json:"data"`
+		} `josn:"topicComments"`
+	} `json:"data"`
+}
+
+func GetDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) (DiscussionCommentsResponseBody, error) {
+	var result DiscussionCommentsResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadDiscussionComments(topicId, orderBy, offset, pageSize),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return DiscussionCommentsResponseBody{}, err
 	}
 
 	return result, nil
