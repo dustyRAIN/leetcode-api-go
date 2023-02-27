@@ -133,3 +133,40 @@ func GetUserContestRankingHistory(username string) (UserContestRankingHistoryRes
 
 	return result, nil
 }
+
+type DifficultyCount struct {
+	Count      int    `json:"count"`
+	Difficulty string `json:"difficulty"`
+}
+
+type DifficultyPercentage struct {
+	Percentage float32 `json:"percentage"`
+	Difficulty string  `json:"difficulty"`
+}
+
+type UserSolveCountByDifficultyResponseBody struct {
+	Data struct {
+		AllQuestionsCount []DifficultyCount `json:"allQuestionsCount"`
+		MatchedUser       struct {
+			ProblemsSolvedBeatsStats []DifficultyPercentage `json:"problemsSolvedBeatsStats"`
+			SubmitStatsGlobal        struct {
+				AcSubmissionNum []DifficultyCount `json:"acSubmissionNum"`
+			} `json:"submitStatsGlobal"`
+		} `json:"matchedUser"`
+	} `json:"data"`
+}
+
+func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyResponseBody, error) {
+	var result UserSolveCountByDifficultyResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadUserSolveCountByDifficulty(username),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return UserSolveCountByDifficultyResponseBody{}, err
+	}
+
+	return result, nil
+}
