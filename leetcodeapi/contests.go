@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-type ContestInfo struct {
+type ContestMeta struct {
 	Description     string `json:"description"`
 	DiscussTopicId  int    `json:"discuss_topic_id"`
 	Duration        int    `json:"duration"`
@@ -26,20 +26,20 @@ type ContestProblemInfo struct {
 	TitleSlug  string `json:"title_slug"`
 }
 
-type ContestInfoResponseBody struct {
+type Contest struct {
 	Company struct {
 		Description string `json:"description"`
 		Logo        string `json:"logo"`
 		Name        string `json:"name"`
 	} `json:"company"`
 	ContainsPremium bool                 `json:"containsPremium"`
-	Contest         ContestInfo          `json:"contest"`
+	ContestMeta     ContestMeta          `json:"contest"`
 	Questions       []ContestProblemInfo `json:"questions"`
 	Registered      bool                 `json:"registered"`
 }
 
-func GetContestInfo(contestSlug string) (ContestInfoResponseBody, error) {
-	var result ContestInfoResponseBody
+func GetContestInfo(contestSlug string) (Contest, error) {
+	var result Contest
 	err := makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/info/%v/", contestSlug),
@@ -50,7 +50,7 @@ func GetContestInfo(contestSlug string) (ContestInfoResponseBody, error) {
 
 	if err != nil {
 		log.Printf(err.Error())
-		return ContestInfoResponseBody{}, err
+		return Contest{}, err
 	}
 
 	return result, nil
@@ -89,7 +89,7 @@ type SubmissionInContest struct {
 	SubmissionId int64  `json:"submission_id"`
 }
 
-type ContestRankingResponseBody struct {
+type ContestRanking struct {
 	IsPast      bool                             `json:"is_past"`
 	Questions   []ContestProblemInfo             `json:"questions"`
 	Ranks       []ParticipantDetails             `json:"total_rank"`
@@ -99,8 +99,8 @@ type ContestRankingResponseBody struct {
 	TotalPage   int
 }
 
-func GetContestRanking(contestSlug string, page int) (ContestRankingResponseBody, error) {
-	var result ContestRankingResponseBody
+func GetContestRanking(contestSlug string, page int) (ContestRanking, error) {
+	var result ContestRanking
 	err := makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/ranking/%v/?pagination=%v&region=global", contestSlug, page),
@@ -111,7 +111,7 @@ func GetContestRanking(contestSlug string, page int) (ContestRankingResponseBody
 
 	if err != nil {
 		log.Printf(err.Error())
-		return ContestRankingResponseBody{}, err
+		return ContestRanking{}, err
 	}
 
 	return result, nil
