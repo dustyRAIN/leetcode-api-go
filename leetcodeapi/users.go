@@ -44,13 +44,46 @@ type UserPublicProfileReponseBody struct {
 func GetUserPublicProfile(username string) (UserPublicProfileReponseBody, error) {
 	var result UserPublicProfileReponseBody
 	err := MakeGraphQLRequest(
-		getGraphQLUserPublicProfile(username),
+		getGraphQLPayloadUserPublicProfile(username),
 		&result,
 	)
 
 	if err != nil {
 		log.Printf(err.Error())
 		return UserPublicProfileReponseBody{}, err
+	}
+
+	return result, nil
+}
+
+type TagCount struct {
+	ProblemsSolved int    `json:"problemsSolved"`
+	TagName        string `json:"tagName"`
+	TagSlug        string `json:"tagSlug"`
+}
+
+type UserSolveCountByTagResponseBody struct {
+	Data struct {
+		MatchedUser struct {
+			TagProblemCounts struct {
+				Advanced     []TagCount `json:"advanced"`
+				Fundamental  []TagCount `json:"fundamental"`
+				Intermediate []TagCount `json:"intermediate"`
+			} `json:"tagProblemCounts"`
+		} `json:"matchedUser"`
+	} `json:"data"`
+}
+
+func GetUserSolveCountByProblemTag(username string) (UserSolveCountByTagResponseBody, error) {
+	var result UserSolveCountByTagResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadUserSolveCountByTag(username),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return UserSolveCountByTagResponseBody{}, err
 	}
 
 	return result, nil

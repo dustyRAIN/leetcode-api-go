@@ -108,9 +108,18 @@ func getGraphQLPayloadCommentReplies(commentId int64) string {
 	}`, commentId)
 }
 
-func getGraphQLUserPublicProfile(username string) string {
+func getGraphQLPayloadUserPublicProfile(username string) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query userPublicProfile($username: String!) {\n  matchedUser(username: $username) {\n    contestBadge {\n      name\n      expired\n      hoverText\n      icon\n    }\n    username\n    githubUrl\n    twitterUrl\n    linkedinUrl\n    profile {\n      ranking\n      userAvatar\n      realName\n      aboutMe\n      school\n      websites\n      countryName\n      company\n      jobTitle\n      skillTags\n      postViewCount\n      postViewCountDiff\n      reputation\n      reputationDiff\n      solutionCount\n      solutionCountDiff\n      categoryDiscussCount\n      categoryDiscussCountDiff\n    }\n  }\n}\n    ",
+	    "variables": {
+	        "username": "%v"
+	    }
+	}`, username)
+}
+
+func getGraphQLPayloadUserSolveCountByTag(username string) string {
+	return fmt.Sprintf(`{
+	    "query": "\n    query skillStats($username: String!) {\n  matchedUser(username: $username) {\n    tagProblemCounts {\n      advanced {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n      intermediate {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n      fundamental {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n    }\n  }\n}\n    ",
 	    "variables": {
 	        "username": "%v"
 	    }
