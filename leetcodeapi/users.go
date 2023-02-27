@@ -88,3 +88,48 @@ func GetUserSolveCountByProblemTag(username string) (UserSolveCountByTagResponse
 
 	return result, nil
 }
+
+type UserContestRankingHistory struct {
+	Attended bool `json:"attended"`
+	Contest  struct {
+		Title     string `json:"title"`
+		StartTime int64  `json:"startTime"`
+	} `json:"contest"`
+	FinishTimeInSeconds int     `json:"finishTimeInSeconds"`
+	ProblemsSolved      int     `json:"problemsSolved"`
+	Ranking             int     `json:"ranking"`
+	Rating              float32 `json:"rating"`
+	TotalProblems       int     `json:"totalProblems"`
+	TrendDirection      string  `json:"trendDirection"`
+}
+
+type UserContestRankingHistoryResponseBody struct {
+	Data struct {
+		UserContestRanking struct {
+			AttendedContestsCount int `json:"attendedContestsCount"`
+			Badge                 struct {
+				Name string `json:"name"`
+			} `json:"badge"`
+			GlobalRanking     int     `json:"globalRanking"`
+			Rating            float32 `json:"rating"`
+			TopPercentage     float32 `json:"topPercentage"`
+			TotalParticipants int     `json:"totalParticipants"`
+		} `json:"userContestRanking"`
+		UserContestRankingHistory []UserContestRankingHistory `json:"userContestRankingHistory"`
+	} `json:"data"`
+}
+
+func GetUserContestRankingHistory(username string) (UserContestRankingHistoryResponseBody, error) {
+	var result UserContestRankingHistoryResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadUserContestRankingHistory(username),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return UserContestRankingHistoryResponseBody{}, err
+	}
+
+	return result, nil
+}

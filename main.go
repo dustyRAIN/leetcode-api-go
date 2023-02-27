@@ -18,5 +18,6 @@ func main() {
 	//fmt.Println(leetcodeapi.GetDiscussionComments(2069641, "best", 0, 10))
 	//fmt.Println(leetcodeapi.GetCommentReplies(1404906))
 	//fmt.Println(leetcodeapi.GetUserPublicProfile("dustyRAIN"))
-	fmt.Println(leetcodeapi.GetUserSolveCountByProblemTag("dustyRAIN"))
+	//fmt.Println(leetcodeapi.GetUserSolveCountByProblemTag("dustyRAIN"))
+	fmt.Println(leetcodeapi.GetUserContestRankingHistory("dustyRAIN"))
 }
