@@ -170,3 +170,38 @@ func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyR
 
 	return result, nil
 }
+
+type UserProfileCalendarResponseBody struct {
+	Data struct {
+		MatchedUser struct {
+			UserCalendar struct {
+				ActiveYears []int `json:"activeYears"`
+				DccBadges   []struct {
+					Badge struct {
+						Icon string `json:"icon"`
+						Name string `json:"name"`
+					} `json:"badge"`
+					Timestamp int64 `json:"timestamp"`
+				} `json:"dccBadges"`
+				Streak             int    `json:"streak"`
+				SubmissionCalendar string `json:"submissionCalendar"`
+				TotalActiveDays    int    `json:"totalActiveDays"`
+			} `json:"userCalendar"`
+		} `json:"matchedUser"`
+	} `json:"data"`
+}
+
+func GetUserProfileCalendar(username string) (UserProfileCalendarResponseBody, error) {
+	var result UserProfileCalendarResponseBody
+	err := MakeGraphQLRequest(
+		getGraphQLPayloadUserProfileCalendar(username),
+		&result,
+	)
+
+	if err != nil {
+		log.Printf(err.Error())
+		return UserProfileCalendarResponseBody{}, err
+	}
+
+	return result, nil
+}

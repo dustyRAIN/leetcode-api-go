@@ -20,5 +20,6 @@ func main() {
 	//fmt.Println(leetcodeapi.GetUserPublicProfile("dustyRAIN"))
 	//fmt.Println(leetcodeapi.GetUserSolveCountByProblemTag("dustyRAIN"))
 	//fmt.Println(leetcodeapi.GetUserContestRankingHistory("dustyRAIN"))
-	fmt.Println(leetcodeapi.GetUserSolveCountByDifficulty("dustyRAIN"))
+	//fmt.Println(leetcodeapi.GetUserSolveCountByDifficulty("dustyRAIN"))
+	fmt.Println(leetcodeapi.GetUserProfileCalendar("dustyRAIN"))
 }

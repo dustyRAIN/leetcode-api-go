@@ -143,3 +143,12 @@ func getGraphQLPayloadUserSolveCountByDifficulty(username string) string {
 	    }
 	}`, username)
 }
+
+func getGraphQLPayloadUserProfileCalendar(username string) string {
+	return fmt.Sprintf(`{
+	    "query": "\n    query userProfileCalendar($username: String!, $year: Int) {\n  matchedUser(username: $username) {\n    userCalendar(year: $year) {\n      activeYears\n      streak\n      totalActiveDays\n      dccBadges {\n        timestamp\n        badge {\n          name\n          icon\n        }\n      }\n      submissionCalendar\n    }\n  }\n}\n    ",
+	    "variables": {
+	        "username": "%v"
+	    }
+	}`, username)
+}
