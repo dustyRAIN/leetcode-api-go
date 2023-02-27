@@ -23,26 +23,28 @@ type UserProfile struct {
 	Websites                 []string `json:"websites"`
 }
 
-type UserPublicProfileReponseBody struct {
+type UserPublicProfile struct {
+	ContestBadge struct {
+		Expired   bool   `json:"expired"`
+		HoverText string `json:"hoverText"`
+		Icon      string `json:"icon"`
+		Name      string `json:"name"`
+	} `json:"contestBadge"`
+	GithubUrl   string      `json:"githubUrl"`
+	LinkedinUrl string      `json:"linkedinUrl"`
+	Profile     UserProfile `json:"profile"`
+	TwitterUrl  string      `json:"twitterUrl"`
+	Username    string      `json:"username"`
+}
+
+type userPublicProfileReponseBody struct {
 	Data struct {
-		MatchedUser struct {
-			ContestBadge struct {
-				Expired   bool   `json:"expired"`
-				HoverText string `json:"hoverText"`
-				Icon      string `json:"icon"`
-				Name      string `json:"name"`
-			} `json:"contestBadge"`
-			GithubUrl   string      `json:"githubUrl"`
-			LinkedinUrl string      `json:"linkedinUrl"`
-			Profile     UserProfile `json:"profile"`
-			TwitterUrl  string      `json:"twitterUrl"`
-			Username    string      `json:"username"`
-		} `json:"matchedUser"`
+		MatchedUser UserPublicProfile `json:"matchedUser"`
 	} `json:"data"`
 }
 
-func GetUserPublicProfile(username string) (UserPublicProfileReponseBody, error) {
-	var result UserPublicProfileReponseBody
+func GetUserPublicProfile(username string) (UserPublicProfile, error) {
+	var result userPublicProfileReponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadUserPublicProfile(username),
 		&result,
@@ -50,10 +52,10 @@ func GetUserPublicProfile(username string) (UserPublicProfileReponseBody, error)
 
 	if err != nil {
 		log.Printf(err.Error())
-		return UserPublicProfileReponseBody{}, err
+		return UserPublicProfile{}, err
 	}
 
-	return result, nil
+	return result.Data.MatchedUser, nil
 }
 
 type TagCount struct {
@@ -62,20 +64,22 @@ type TagCount struct {
 	TagSlug        string `json:"tagSlug"`
 }
 
-type UserSolveCountByTagResponseBody struct {
+type TagProblemCounts struct {
+	Advanced     []TagCount `json:"advanced"`
+	Fundamental  []TagCount `json:"fundamental"`
+	Intermediate []TagCount `json:"intermediate"`
+}
+
+type userSolveCountByTagResponseBody struct {
 	Data struct {
 		MatchedUser struct {
-			TagProblemCounts struct {
-				Advanced     []TagCount `json:"advanced"`
-				Fundamental  []TagCount `json:"fundamental"`
-				Intermediate []TagCount `json:"intermediate"`
-			} `json:"tagProblemCounts"`
+			TagProblemCounts TagProblemCounts `json:"tagProblemCounts"`
 		} `json:"matchedUser"`
 	} `json:"data"`
 }
 
-func GetUserSolveCountByProblemTag(username string) (UserSolveCountByTagResponseBody, error) {
-	var result UserSolveCountByTagResponseBody
+func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
+	var result userSolveCountByTagResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadUserSolveCountByTag(username),
 		&result,
@@ -83,10 +87,10 @@ func GetUserSolveCountByProblemTag(username string) (UserSolveCountByTagResponse
 
 	if err != nil {
 		log.Printf(err.Error())
-		return UserSolveCountByTagResponseBody{}, err
+		return TagProblemCounts{}, err
 	}
 
-	return result, nil
+	return result.Data.MatchedUser.TagProblemCounts, nil
 }
 
 type UserContestRankingHistory struct {
@@ -103,24 +107,28 @@ type UserContestRankingHistory struct {
 	TrendDirection      string  `json:"trendDirection"`
 }
 
-type UserContestRankingHistoryResponseBody struct {
-	Data struct {
-		UserContestRanking struct {
-			AttendedContestsCount int `json:"attendedContestsCount"`
-			Badge                 struct {
-				Name string `json:"name"`
-			} `json:"badge"`
-			GlobalRanking     int     `json:"globalRanking"`
-			Rating            float32 `json:"rating"`
-			TopPercentage     float32 `json:"topPercentage"`
-			TotalParticipants int     `json:"totalParticipants"`
-		} `json:"userContestRanking"`
-		UserContestRankingHistory []UserContestRankingHistory `json:"userContestRankingHistory"`
-	} `json:"data"`
+type UserContestRanking struct {
+	AttendedContestsCount int `json:"attendedContestsCount"`
+	Badge                 struct {
+		Name string `json:"name"`
+	} `json:"badge"`
+	GlobalRanking     int     `json:"globalRanking"`
+	Rating            float32 `json:"rating"`
+	TopPercentage     float32 `json:"topPercentage"`
+	TotalParticipants int     `json:"totalParticipants"`
 }
 
-func GetUserContestRankingHistory(username string) (UserContestRankingHistoryResponseBody, error) {
-	var result UserContestRankingHistoryResponseBody
+type UserContestRankingDetails struct {
+	UserContestRanking        UserContestRanking          `json:"userContestRanking"`
+	UserContestRankingHistory []UserContestRankingHistory `json:"userContestRankingHistory"`
+}
+
+type userContestRankingHistoryResponseBody struct {
+	Data UserContestRankingDetails `json:"data"`
+}
+
+func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
+	var result userContestRankingHistoryResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadUserContestRankingHistory(username),
 		&result,
@@ -128,10 +136,10 @@ func GetUserContestRankingHistory(username string) (UserContestRankingHistoryRes
 
 	if err != nil {
 		log.Printf(err.Error())
-		return UserContestRankingHistoryResponseBody{}, err
+		return UserContestRankingDetails{}, err
 	}
 
-	return result, nil
+	return result.Data, nil
 }
 
 type DifficultyCount struct {
@@ -144,20 +152,24 @@ type DifficultyPercentage struct {
 	Difficulty string  `json:"difficulty"`
 }
 
-type UserSolveCountByDifficultyResponseBody struct {
-	Data struct {
-		AllQuestionsCount []DifficultyCount `json:"allQuestionsCount"`
-		MatchedUser       struct {
-			ProblemsSolvedBeatsStats []DifficultyPercentage `json:"problemsSolvedBeatsStats"`
-			SubmitStatsGlobal        struct {
-				AcSubmissionNum []DifficultyCount `json:"acSubmissionNum"`
-			} `json:"submitStatsGlobal"`
-		} `json:"matchedUser"`
-	} `json:"data"`
+type UserSolveCountByDifficulty struct {
+	ProblemsSolvedBeatsStats []DifficultyPercentage `json:"problemsSolvedBeatsStats"`
+	SubmitStatsGlobal        struct {
+		AcSubmissionNum []DifficultyCount `json:"acSubmissionNum"`
+	} `json:"submitStatsGlobal"`
 }
 
-func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyResponseBody, error) {
-	var result UserSolveCountByDifficultyResponseBody
+type UserSolveCountByDifficultyDetails struct {
+	AllQuestionsCount     []DifficultyCount          `json:"allQuestionsCount"`
+	MatchedUserSolveCount UserSolveCountByDifficulty `json:"matchedUser"`
+}
+
+type userSolveCountByDifficultyResponseBody struct {
+	Data UserSolveCountByDifficultyDetails `json:"data"`
+}
+
+func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
+	var result userSolveCountByDifficultyResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadUserSolveCountByDifficulty(username),
 		&result,
@@ -165,34 +177,36 @@ func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyR
 
 	if err != nil {
 		log.Printf(err.Error())
-		return UserSolveCountByDifficultyResponseBody{}, err
+		return UserSolveCountByDifficultyDetails{}, err
 	}
 
-	return result, nil
+	return result.Data, nil
 }
 
-type UserProfileCalendarResponseBody struct {
+type UserCalendar struct {
+	ActiveYears []int `json:"activeYears"`
+	DccBadges   []struct {
+		Badge struct {
+			Icon string `json:"icon"`
+			Name string `json:"name"`
+		} `json:"badge"`
+		Timestamp int64 `json:"timestamp"`
+	} `json:"dccBadges"`
+	Streak             int    `json:"streak"`
+	SubmissionCalendar string `json:"submissionCalendar"`
+	TotalActiveDays    int    `json:"totalActiveDays"`
+}
+
+type userProfileCalendarResponseBody struct {
 	Data struct {
 		MatchedUser struct {
-			UserCalendar struct {
-				ActiveYears []int `json:"activeYears"`
-				DccBadges   []struct {
-					Badge struct {
-						Icon string `json:"icon"`
-						Name string `json:"name"`
-					} `json:"badge"`
-					Timestamp int64 `json:"timestamp"`
-				} `json:"dccBadges"`
-				Streak             int    `json:"streak"`
-				SubmissionCalendar string `json:"submissionCalendar"`
-				TotalActiveDays    int    `json:"totalActiveDays"`
-			} `json:"userCalendar"`
+			UserCalendar UserCalendar `json:"userCalendar"`
 		} `json:"matchedUser"`
 	} `json:"data"`
 }
 
-func GetUserProfileCalendar(username string) (UserProfileCalendarResponseBody, error) {
-	var result UserProfileCalendarResponseBody
+func GetUserProfileCalendar(username string) (UserCalendar, error) {
+	var result userProfileCalendarResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadUserProfileCalendar(username),
 		&result,
@@ -200,10 +214,10 @@ func GetUserProfileCalendar(username string) (UserProfileCalendarResponseBody, e
 
 	if err != nil {
 		log.Printf(err.Error())
-		return UserProfileCalendarResponseBody{}, err
+		return UserCalendar{}, err
 	}
 
-	return result, nil
+	return result.Data.MatchedUser.UserCalendar, nil
 }
 
 type AcSubmission struct {
@@ -213,14 +227,14 @@ type AcSubmission struct {
 	TitleSlug string `json:"titleSlug"`
 }
 
-type UserRecentAcSubmissionsResponseBody struct {
+type userRecentAcSubmissionsResponseBody struct {
 	Data struct {
 		RecentAcSubmissionList []AcSubmission `json:"recentAcSubmissionList"`
 	} `json:"data"`
 }
 
-func GetUserRecentAcSubmissions(username string, pageSize int) (UserRecentAcSubmissionsResponseBody, error) {
-	var result UserRecentAcSubmissionsResponseBody
+func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
+	var result userRecentAcSubmissionsResponseBody
 	err := MakeGraphQLRequest(
 		getGraphQLPayloadUserRecentAcSubmissions(username, pageSize),
 		&result,
@@ -228,8 +242,8 @@ func GetUserRecentAcSubmissions(username string, pageSize int) (UserRecentAcSubm
 
 	if err != nil {
 		log.Printf(err.Error())
-		return UserRecentAcSubmissionsResponseBody{}, err
+		return []AcSubmission{}, err
 	}
 
-	return result, nil
+	return result.Data.RecentAcSubmissionList, nil
 }
