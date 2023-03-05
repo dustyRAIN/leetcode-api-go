@@ -5,8 +5,28 @@ import (
 )
 
 func GetAllProblems() (ProblemList, error) {
+	return getAllProblems(Util{}, query{})
+}
+
+func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
+	return getProblemContentByTitleSlug(titleSlug, Util{}, query{})
+}
+
+func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
+	return getProblemsByTopic(topicSlug, Util{}, query{})
+}
+
+func GetTopInterviewProblems() (ProblemList, error) {
+	return getTopInterviewProblems(Util{}, query{})
+}
+
+/*
+---------------------------------------------------------------------------------------
+*/
+
+func getAllProblems(utils IUtil, queries IQuery) (ProblemList, error) {
 	var result problemsetListResponseBody
-	err := MakeGraphQLRequest(getGraphQLPayloadAllProblems(), &result)
+	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadAllProblems(), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
@@ -16,9 +36,9 @@ func GetAllProblems() (ProblemList, error) {
 	return result.Data.ProblemsetQuestionList, nil
 }
 
-func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
+func getProblemContentByTitleSlug(titleSlug string, utils IUtil, queries IQuery) (ProblemContent, error) {
 	var result problemContentResponseBody
-	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(titleSlug), &result)
+	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadProblemContent(titleSlug), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
@@ -28,9 +48,9 @@ func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
 	return result.Data.Question, nil
 }
 
-func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
+func getProblemsByTopic(topicSlug string, utils IUtil, queries IQuery) (ProblemsByTopic, error) {
 	var result problemsByTopicResponseBody
-	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(getGraphQLPayloadProblemsByTopic(topicSlug)), &result)
+	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadProblemsByTopic(topicSlug), &result)
 
 	if err != nil {
 		log.Printf(err.Error())
@@ -40,9 +60,9 @@ func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
 	return result.Data.TopicTag, nil
 }
 
-func GetTopInterviewProblems() (ProblemList, error) {
+func getTopInterviewProblems(utils IUtil, queries IQuery) (ProblemList, error) {
 	var result problemsetListResponseBody
-	err := MakeGraphQLRequest(getGraphQLPayloadProblemContent(getGraphQLPayloadTopInterviewProblems()), &result)
+	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadTopInterviewProblems(), &result)
 
 	if err != nil {
 		log.Printf(err.Error())

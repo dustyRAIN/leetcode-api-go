@@ -6,8 +6,20 @@ import (
 )
 
 func GetContestInfo(contestSlug string) (Contest, error) {
+	return getContestInfo(contestSlug, Util{})
+}
+
+func GetContestRanking(contestSlug string, page int) (ContestRanking, error) {
+	return getContestRanking(contestSlug, page, Util{})
+}
+
+/*
+---------------------------------------------------------------------------------------
+*/
+
+func getContestInfo(contestSlug string, utils IUtil) (Contest, error) {
 	var result Contest
-	err := makeHttpRequest(
+	err := utils.makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/info/%v/", contestSlug),
 		"application/json",
@@ -23,9 +35,9 @@ func GetContestInfo(contestSlug string) (Contest, error) {
 	return result, nil
 }
 
-func GetContestRanking(contestSlug string, page int) (ContestRanking, error) {
+func getContestRanking(contestSlug string, page int, utils IUtil) (ContestRanking, error) {
 	var result ContestRanking
-	err := makeHttpRequest(
+	err := utils.makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/ranking/%v/?pagination=%v&region=global", contestSlug, page),
 		"application/json",

@@ -3,9 +3,37 @@ package leetcodeapi
 import "log"
 
 func GetUserPublicProfile(username string) (UserPublicProfile, error) {
+	return getUserPublicProfile(username, Util{}, query{})
+}
+
+func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
+	return getUserSolveCountByProblemTag(username, Util{}, query{})
+}
+
+func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
+	return getUserContestRankingHistory(username, Util{}, query{})
+}
+
+func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
+	return getUserSolveCountByDifficulty(username, Util{}, query{})
+}
+
+func GetUserProfileCalendar(username string) (UserCalendar, error) {
+	return getUserProfileCalendar(username, Util{}, query{})
+}
+
+func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
+	return getUserRecentAcSubmissions(username, pageSize, Util{}, query{})
+}
+
+/*
+---------------------------------------------------------------------------------------
+*/
+
+func getUserPublicProfile(username string, utils IUtil, queries IQuery) (UserPublicProfile, error) {
 	var result userPublicProfileReponseBody
-	err := MakeGraphQLRequest(
-		getGraphQLPayloadUserPublicProfile(username),
+	err := utils.MakeGraphQLRequest(
+		queries.getGraphQLPayloadUserPublicProfile(username),
 		&result,
 	)
 
@@ -17,10 +45,10 @@ func GetUserPublicProfile(username string) (UserPublicProfile, error) {
 	return result.Data.MatchedUser, nil
 }
 
-func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
+func getUserSolveCountByProblemTag(username string, utils IUtil, queries IQuery) (TagProblemCounts, error) {
 	var result userSolveCountByTagResponseBody
-	err := MakeGraphQLRequest(
-		getGraphQLPayloadUserSolveCountByTag(username),
+	err := utils.MakeGraphQLRequest(
+		queries.getGraphQLPayloadUserSolveCountByTag(username),
 		&result,
 	)
 
@@ -32,24 +60,10 @@ func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
 	return result.Data.MatchedUser.TagProblemCounts, nil
 }
 
-type UserContestRankingHistory struct {
-	Attended bool `json:"attended"`
-	Contest  struct {
-		Title     string `json:"title"`
-		StartTime int64  `json:"startTime"`
-	} `json:"contest"`
-	FinishTimeInSeconds int     `json:"finishTimeInSeconds"`
-	ProblemsSolved      int     `json:"problemsSolved"`
-	Ranking             int     `json:"ranking"`
-	Rating              float32 `json:"rating"`
-	TotalProblems       int     `json:"totalProblems"`
-	TrendDirection      string  `json:"trendDirection"`
-}
-
-func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
+func getUserContestRankingHistory(username string, utils IUtil, queries IQuery) (UserContestRankingDetails, error) {
 	var result userContestRankingHistoryResponseBody
-	err := MakeGraphQLRequest(
-		getGraphQLPayloadUserContestRankingHistory(username),
+	err := utils.MakeGraphQLRequest(
+		queries.getGraphQLPayloadUserContestRankingHistory(username),
 		&result,
 	)
 
@@ -61,10 +75,10 @@ func GetUserContestRankingHistory(username string) (UserContestRankingDetails, e
 	return result.Data, nil
 }
 
-func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
+func getUserSolveCountByDifficulty(username string, utils IUtil, queries IQuery) (UserSolveCountByDifficultyDetails, error) {
 	var result userSolveCountByDifficultyResponseBody
-	err := MakeGraphQLRequest(
-		getGraphQLPayloadUserSolveCountByDifficulty(username),
+	err := utils.MakeGraphQLRequest(
+		queries.getGraphQLPayloadUserSolveCountByDifficulty(username),
 		&result,
 	)
 
@@ -76,32 +90,10 @@ func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyD
 	return result.Data, nil
 }
 
-type UserCalendar struct {
-	ActiveYears []int `json:"activeYears"`
-	DccBadges   []struct {
-		Badge struct {
-			Icon string `json:"icon"`
-			Name string `json:"name"`
-		} `json:"badge"`
-		Timestamp int64 `json:"timestamp"`
-	} `json:"dccBadges"`
-	Streak             int    `json:"streak"`
-	SubmissionCalendar string `json:"submissionCalendar"`
-	TotalActiveDays    int    `json:"totalActiveDays"`
-}
-
-type userProfileCalendarResponseBody struct {
-	Data struct {
-		MatchedUser struct {
-			UserCalendar UserCalendar `json:"userCalendar"`
-		} `json:"matchedUser"`
-	} `json:"data"`
-}
-
-func GetUserProfileCalendar(username string) (UserCalendar, error) {
+func getUserProfileCalendar(username string, utils IUtil, queries IQuery) (UserCalendar, error) {
 	var result userProfileCalendarResponseBody
-	err := MakeGraphQLRequest(
-		getGraphQLPayloadUserProfileCalendar(username),
+	err := utils.MakeGraphQLRequest(
+		queries.getGraphQLPayloadUserProfileCalendar(username),
 		&result,
 	)
 
@@ -113,10 +105,10 @@ func GetUserProfileCalendar(username string) (UserCalendar, error) {
 	return result.Data.MatchedUser.UserCalendar, nil
 }
 
-func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
+func getUserRecentAcSubmissions(username string, pageSize int, utils IUtil, queries IQuery) ([]AcSubmission, error) {
 	var result userRecentAcSubmissionsResponseBody
-	err := MakeGraphQLRequest(
-		getGraphQLPayloadUserRecentAcSubmissions(username, pageSize),
+	err := utils.MakeGraphQLRequest(
+		queries.getGraphQLPayloadUserRecentAcSubmissions(username, pageSize),
 		&result,
 	)
 

@@ -9,7 +9,16 @@ import (
 	"strings"
 )
 
-func parseCookie(cookies []*http.Cookie, cookieName string) string {
+type IUtil interface {
+	parseCookie(cookies []*http.Cookie, cookieName string) string
+	makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error
+	MakeGraphQLRequest(payload string, resultRef interface{}) error
+	convertListToString(list []string) string
+}
+
+type Util struct{}
+
+func (u Util) parseCookie(cookies []*http.Cookie, cookieName string) string {
 	for _, cookie := range cookies {
 		if cookie.Name == cookieName {
 			return cookie.Value
@@ -18,7 +27,7 @@ func parseCookie(cookies []*http.Cookie, cookieName string) string {
 	return ""
 }
 
-func makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error {
+func (u Util) makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error {
 	client := &http.Client{}
 	request, err := http.NewRequest(method, url, strings.NewReader(body))
 	request.Header.Add("Content-Type", "application/json; charset=UTF-8")
@@ -46,8 +55,8 @@ func makeHttpRequest(method string, url string, contentType string, body string,
 	return err
 }
 
-func MakeGraphQLRequest(payload string, resultRef interface{}) error {
-	err := makeHttpRequest(
+func (u Util) MakeGraphQLRequest(payload string, resultRef interface{}) error {
+	err := Util{}.makeHttpRequest(
 		"GET",
 		"https://leetcode.com/graphql/",
 		"application/json",
@@ -58,7 +67,7 @@ func MakeGraphQLRequest(payload string, resultRef interface{}) error {
 	return err
 }
 
-func convertListToString(list []string) string {
+func (u Util) convertListToString(list []string) string {
 	var listString string = "["
 	for indx, item := range list {
 		if indx > 0 {
