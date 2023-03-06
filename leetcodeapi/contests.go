@@ -6,20 +6,24 @@ import (
 )
 
 func GetContestInfo(contestSlug string) (Contest, error) {
-	return getContestInfo(contestSlug, Util{})
+	return (&contestService{utils: Util{}}).getContestInfo(contestSlug)
 }
 
 func GetContestRanking(contestSlug string, page int) (ContestRanking, error) {
-	return getContestRanking(contestSlug, page, Util{})
+	return (&contestService{utils: Util{}}).getContestRanking(contestSlug, page)
 }
 
 /*
 ---------------------------------------------------------------------------------------
 */
 
-func getContestInfo(contestSlug string, utils IUtil) (Contest, error) {
+type contestService struct {
+	utils IUtil
+}
+
+func (c *contestService) getContestInfo(contestSlug string) (Contest, error) {
 	var result Contest
-	err := utils.makeHttpRequest(
+	err := c.utils.makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/info/%v/", contestSlug),
 		"application/json",
@@ -28,16 +32,16 @@ func getContestInfo(contestSlug string, utils IUtil) (Contest, error) {
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return Contest{}, err
 	}
 
 	return result, nil
 }
 
-func getContestRanking(contestSlug string, page int, utils IUtil) (ContestRanking, error) {
+func (c *contestService) getContestRanking(contestSlug string, page int) (ContestRanking, error) {
 	var result ContestRanking
-	err := utils.makeHttpRequest(
+	err := c.utils.makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/ranking/%v/?pagination=%v&region=global", contestSlug, page),
 		"application/json",
@@ -46,7 +50,7 @@ func getContestRanking(contestSlug string, page int, utils IUtil) (ContestRankin
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return ContestRanking{}, err
 	}
 
