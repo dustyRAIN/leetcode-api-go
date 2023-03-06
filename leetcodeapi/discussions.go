@@ -30,7 +30,7 @@ func getDiscussions(categories []string, tags []string, orderBy string, searchQu
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return DiscussionList{}, err
 	}
 
@@ -45,7 +45,7 @@ func getDiscussion(topicId int64, utils IUtil, queries IQuery) (Discussion, erro
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return Discussion{}, err
 	}
 
@@ -60,7 +60,7 @@ func getDiscussionComments(topicId int64, orderBy string, offset int, pageSize i
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return []Comment{}, err
 	}
 
@@ -75,7 +75,7 @@ func getCommentReplies(commentId int64, utils IUtil, queries IQuery) ([]Comment,
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return []Comment{}, err
 	}
 

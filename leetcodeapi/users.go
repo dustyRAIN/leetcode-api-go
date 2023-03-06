@@ -38,7 +38,7 @@ func getUserPublicProfile(username string, utils IUtil, queries IQuery) (UserPub
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return UserPublicProfile{}, err
 	}
 
@@ -53,7 +53,7 @@ func getUserSolveCountByProblemTag(username string, utils IUtil, queries IQuery)
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return TagProblemCounts{}, err
 	}
 
@@ -68,7 +68,7 @@ func getUserContestRankingHistory(username string, utils IUtil, queries IQuery) 
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return UserContestRankingDetails{}, err
 	}
 
@@ -83,7 +83,7 @@ func getUserSolveCountByDifficulty(username string, utils IUtil, queries IQuery)
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return UserSolveCountByDifficultyDetails{}, err
 	}
 
@@ -98,7 +98,7 @@ func getUserProfileCalendar(username string, utils IUtil, queries IQuery) (UserC
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return UserCalendar{}, err
 	}
 
@@ -113,7 +113,7 @@ func getUserRecentAcSubmissions(username string, pageSize int, utils IUtil, quer
 	)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return []AcSubmission{}, err
 	}
 

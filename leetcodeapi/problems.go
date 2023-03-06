@@ -29,7 +29,7 @@ func getAllProblems(utils IUtil, queries IQuery) (ProblemList, error) {
 	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadAllProblems(), &result)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return ProblemList{}, err
 	}
 
@@ -41,7 +41,7 @@ func getProblemContentByTitleSlug(titleSlug string, utils IUtil, queries IQuery)
 	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadProblemContent(titleSlug), &result)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return ProblemContent{}, err
 	}
 
@@ -53,7 +53,7 @@ func getProblemsByTopic(topicSlug string, utils IUtil, queries IQuery) (Problems
 	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadProblemsByTopic(topicSlug), &result)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return ProblemsByTopic{}, err
 	}
 
@@ -65,7 +65,7 @@ func getTopInterviewProblems(utils IUtil, queries IQuery) (ProblemList, error) {
 	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadTopInterviewProblems(), &result)
 
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return ProblemList{}, err
 	}
 

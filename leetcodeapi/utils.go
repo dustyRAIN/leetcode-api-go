@@ -2,7 +2,6 @@ package leetcodeapi
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -30,6 +29,9 @@ func (u Util) parseCookie(cookies []*http.Cookie, cookieName string) string {
 func (u Util) makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error {
 	client := &http.Client{}
 	request, err := http.NewRequest(method, url, strings.NewReader(body))
+	if err != nil {
+		return err
+	}
 	request.Header.Add("Content-Type", "application/json; charset=UTF-8")
 	if len(credentials.session) > 0 && len(credentials.csrfToken) > 0 {
 		request.Header.Add("Cookie", fmt.Sprintf("LEETCODE_SESSION=%v; csrftoken=%v", credentials.session, credentials.csrfToken))
@@ -47,7 +49,7 @@ func (u Util) makeHttpRequest(method string, url string, contentType string, bod
 	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
-		return errors.New(fmt.Sprintf("statusCode: %v\nmessage: %v", response.StatusCode, string(responseBodyBytes)))
+		return fmt.Errorf("statusCode: %v\nmessage: %v", response.StatusCode, string(responseBodyBytes))
 	}
 
 	err = json.Unmarshal(responseBodyBytes, &resultRef)
