@@ -5,28 +5,37 @@ import (
 )
 
 func GetAllProblems() (ProblemList, error) {
-	return getAllProblems(&Util{}, &query{})
+	utils := &Util{}
+	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getAllProblems()
 }
 
 func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
-	return getProblemContentByTitleSlug(titleSlug, &Util{}, &query{})
+	utils := &Util{}
+	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getProblemContentByTitleSlug(titleSlug)
 }
 
 func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
-	return getProblemsByTopic(topicSlug, &Util{}, &query{})
+	utils := &Util{}
+	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getProblemsByTopic(topicSlug)
 }
 
 func GetTopInterviewProblems() (ProblemList, error) {
-	return getTopInterviewProblems(&Util{}, &query{})
+	utils := &Util{}
+	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getTopInterviewProblems()
 }
 
 /*
 ---------------------------------------------------------------------------------------
 */
 
-func getAllProblems(utils IUtil, queries IQuery) (ProblemList, error) {
+type problemsService struct {
+	utils   IUtil
+	queries IQuery
+}
+
+func (p *problemsService) getAllProblems() (ProblemList, error) {
 	var result problemsetListResponseBody
-	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadAllProblems(), &result)
+	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadAllProblems(), &result)
 
 	if err != nil {
 		log.Print(err.Error())
@@ -36,9 +45,9 @@ func getAllProblems(utils IUtil, queries IQuery) (ProblemList, error) {
 	return result.Data.ProblemsetQuestionList, nil
 }
 
-func getProblemContentByTitleSlug(titleSlug string, utils IUtil, queries IQuery) (ProblemContent, error) {
+func (p *problemsService) getProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
 	var result problemContentResponseBody
-	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadProblemContent(titleSlug), &result)
+	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadProblemContent(titleSlug), &result)
 
 	if err != nil {
 		log.Print(err.Error())
@@ -48,9 +57,9 @@ func getProblemContentByTitleSlug(titleSlug string, utils IUtil, queries IQuery)
 	return result.Data.Question, nil
 }
 
-func getProblemsByTopic(topicSlug string, utils IUtil, queries IQuery) (ProblemsByTopic, error) {
+func (p *problemsService) getProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
 	var result problemsByTopicResponseBody
-	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadProblemsByTopic(topicSlug), &result)
+	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadProblemsByTopic(topicSlug), &result)
 
 	if err != nil {
 		log.Print(err.Error())
@@ -60,9 +69,9 @@ func getProblemsByTopic(topicSlug string, utils IUtil, queries IQuery) (Problems
 	return result.Data.TopicTag, nil
 }
 
-func getTopInterviewProblems(utils IUtil, queries IQuery) (ProblemList, error) {
+func (p *problemsService) getTopInterviewProblems() (ProblemList, error) {
 	var result problemsetListResponseBody
-	err := utils.MakeGraphQLRequest(queries.getGraphQLPayloadTopInterviewProblems(), &result)
+	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadTopInterviewProblems(), &result)
 
 	if err != nil {
 		log.Print(err.Error())
