@@ -3,6 +3,7 @@ package leetcodeapi
 import (
 	"fmt"
 	"log"
+	"math"
 )
 
 func GetContestInfo(contestSlug string) (Contest, error) {
@@ -53,6 +54,8 @@ func (c *contestService) getContestRanking(contestSlug string, page int) (Contes
 		log.Print(err.Error())
 		return ContestRanking{}, err
 	}
+
+	result.TotalPage = int(math.Ceil(float64(result.TotalUser) / 25.0))
 
 	return result, nil
 }
