@@ -3,29 +3,38 @@ package leetcodeapi
 import "log"
 
 func GetDiscussions(categories []string, tags []string, orderBy string, searchQuery string, offset int) (DiscussionList, error) {
-	return getDiscussions(categories, tags, orderBy, searchQuery, offset, Util{}, query{})
+	utils := &Util{}
+	return (&discussionService{utils: utils, queries: &query{utils: utils}}).getDiscussions(categories, tags, orderBy, searchQuery, offset)
 }
 
 func GetDiscussion(topicId int64) (Discussion, error) {
-	return getDiscussion(topicId, Util{}, query{})
+	utils := &Util{}
+	return (&discussionService{utils: utils, queries: &query{utils: utils}}).getDiscussion(topicId)
 }
 
 func GetDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) ([]Comment, error) {
-	return getDiscussionComments(topicId, orderBy, offset, pageSize, Util{}, query{})
+	utils := &Util{}
+	return (&discussionService{utils: utils, queries: &query{utils: utils}}).getDiscussionComments(topicId, orderBy, offset, pageSize)
 }
 
 func GetCommentReplies(commentId int64) ([]Comment, error) {
-	return getCommentReplies(commentId, Util{}, query{})
+	utils := &Util{}
+	return (&discussionService{utils: utils, queries: &query{utils: utils}}).getCommentReplies(commentId)
 }
 
 /*
 ---------------------------------------------------------------------------------------
 */
 
-func getDiscussions(categories []string, tags []string, orderBy string, searchQuery string, offset int, utils IUtil, queries IQuery) (DiscussionList, error) {
+type discussionService struct {
+	utils   IUtil
+	queries IQuery
+}
+
+func (d *discussionService) getDiscussions(categories []string, tags []string, orderBy string, searchQuery string, offset int) (DiscussionList, error) {
 	var result discussionListResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadDiscussionList(categories, tags, orderBy, searchQuery, offset, utils),
+	err := d.utils.MakeGraphQLRequest(
+		d.queries.getGraphQLPayloadDiscussionList(categories, tags, orderBy, searchQuery, offset),
 		&result,
 	)
 
@@ -37,10 +46,10 @@ func getDiscussions(categories []string, tags []string, orderBy string, searchQu
 	return result.Data.CategoryTopicList, nil
 }
 
-func getDiscussion(topicId int64, utils IUtil, queries IQuery) (Discussion, error) {
+func (d *discussionService) getDiscussion(topicId int64) (Discussion, error) {
 	var result discussionResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadDiscussion(topicId),
+	err := d.utils.MakeGraphQLRequest(
+		d.queries.getGraphQLPayloadDiscussion(topicId),
 		&result,
 	)
 
@@ -52,10 +61,10 @@ func getDiscussion(topicId int64, utils IUtil, queries IQuery) (Discussion, erro
 	return result.Data.Topic, nil
 }
 
-func getDiscussionComments(topicId int64, orderBy string, offset int, pageSize int, utils IUtil, queries IQuery) ([]Comment, error) {
+func (d *discussionService) getDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) ([]Comment, error) {
 	var result discussionCommentsResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadDiscussionComments(topicId, orderBy, offset, pageSize),
+	err := d.utils.MakeGraphQLRequest(
+		d.queries.getGraphQLPayloadDiscussionComments(topicId, orderBy, offset, pageSize),
 		&result,
 	)
 
@@ -67,10 +76,10 @@ func getDiscussionComments(topicId int64, orderBy string, offset int, pageSize i
 	return result.Data.TopicComments.Data, nil
 }
 
-func getCommentReplies(commentId int64, utils IUtil, queries IQuery) ([]Comment, error) {
+func (d *discussionService) getCommentReplies(commentId int64) ([]Comment, error) {
 	var result commentRepliesResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadCommentReplies(commentId),
+	err := d.utils.MakeGraphQLRequest(
+		d.queries.getGraphQLPayloadCommentReplies(commentId),
 		&result,
 	)
 
