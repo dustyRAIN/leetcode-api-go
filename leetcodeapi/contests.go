@@ -7,11 +7,11 @@ import (
 )
 
 func GetContestInfo(contestSlug string) (Contest, error) {
-	return (&contestService{utils: Util{}}).getContestInfo(contestSlug)
+	return (&contestService{utils: &Util{}}).getContestInfo(contestSlug)
 }
 
 func GetContestRanking(contestSlug string, page int) (ContestRanking, error) {
-	return (&contestService{utils: Util{}}).getContestRanking(contestSlug, page)
+	return (&contestService{utils: &Util{}}).getContestRanking(contestSlug, page)
 }
 
 /*

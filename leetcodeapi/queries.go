@@ -9,7 +9,7 @@ type IQuery interface {
 	getGraphQLPayloadProblemContent(titleSlug string) string
 	getGraphQLPayloadProblemsByTopic(topicStag string) string
 	getGraphQLPayloadTopInterviewProblems() string
-	getGraphQLPayloadDiscussionList(categories []string, tags []string, orderBy string, searchQuery string, offset int, utils IUtil) string
+	getGraphQLPayloadDiscussionList(categories []string, tags []string, orderBy string, searchQuery string, offset int) string
 	getGraphQLPayloadDiscussion(topicId int64) string
 	getGraphQLPayloadDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) string
 	getGraphQLPayloadCommentReplies(commentId int64) string
@@ -21,9 +21,11 @@ type IQuery interface {
 	getGraphQLPayloadUserRecentAcSubmissions(username string, pageSize int) string
 }
 
-type query struct{}
+type query struct {
+	utils IUtil
+}
 
-func (q query) getGraphQLPayloadAllProblems() string {
+func (q *query) getGraphQLPayloadAllProblems() string {
 	return fmt.Sprintf(`{
 		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {%v      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
 		"variables": {
@@ -35,7 +37,7 @@ func (q query) getGraphQLPayloadAllProblems() string {
 	}`, problemCommonFields)
 }
 
-func (q query) getGraphQLPayloadProblemContent(titleSlug string) string {
+func (q *query) getGraphQLPayloadProblemContent(titleSlug string) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query questionContent($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    content\n    mysqlSchemas\n  }\n}\n    ",
 	    "variables": {
@@ -44,7 +46,7 @@ func (q query) getGraphQLPayloadProblemContent(titleSlug string) string {
 	}`, titleSlug)
 }
 
-func (q query) getGraphQLPayloadProblemsByTopic(topicStag string) string {
+func (q *query) getGraphQLPayloadProblemsByTopic(topicStag string) string {
 	return fmt.Sprintf(`{
 	    "operationName": "getTopicTag",
 	    "variables": {
@@ -54,7 +56,7 @@ func (q query) getGraphQLPayloadProblemsByTopic(topicStag string) string {
 	}`, topicStag, problemCommonFields)
 }
 
-func (q query) getGraphQLPayloadTopInterviewProblems() string {
+func (q *query) getGraphQLPayloadTopInterviewProblems() string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {%v      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
 	    "variables": {
@@ -68,9 +70,9 @@ func (q query) getGraphQLPayloadTopInterviewProblems() string {
 	}`, problemCommonFields)
 }
 
-func (q query) getGraphQLPayloadDiscussionList(categories []string, tags []string, orderBy string, searchQuery string, offset int, utils IUtil) string {
-	categoryListString := utils.convertListToString(categories)
-	tagListString := utils.convertListToString(tags)
+func (q *query) getGraphQLPayloadDiscussionList(categories []string, tags []string, orderBy string, searchQuery string, offset int) string {
+	categoryListString := q.utils.convertListToString(categories)
+	tagListString := q.utils.convertListToString(tags)
 
 	if orderBy == "" {
 		if len(searchQuery) > 0 {
@@ -94,7 +96,7 @@ func (q query) getGraphQLPayloadDiscussionList(categories []string, tags []strin
 	}`, orderBy, searchQuery, offset, tagListString, categoryListString)
 }
 
-func (q query) getGraphQLPayloadDiscussion(topicId int64) string {
+func (q *query) getGraphQLPayloadDiscussion(topicId int64) string {
 	return fmt.Sprintf(`{
 	    "operationName": "DiscussTopic",
 	    "variables": {
@@ -104,7 +106,7 @@ func (q query) getGraphQLPayloadDiscussion(topicId int64) string {
 	}`, topicId)
 }
 
-func (q query) getGraphQLPayloadDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) string {
+func (q *query) getGraphQLPayloadDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) string {
 	return fmt.Sprintf(`{
 	    "operationName": "discussComments",
 	    "variables": {
@@ -117,7 +119,7 @@ func (q query) getGraphQLPayloadDiscussionComments(topicId int64, orderBy string
 	}`, orderBy, offset, pageSize, topicId)
 }
 
-func (q query) getGraphQLPayloadCommentReplies(commentId int64) string {
+func (q *query) getGraphQLPayloadCommentReplies(commentId int64) string {
 	return fmt.Sprintf(`{
 	    "operationName": "fetchCommentReplies",
 	    "variables": {
@@ -127,7 +129,7 @@ func (q query) getGraphQLPayloadCommentReplies(commentId int64) string {
 	}`, commentId)
 }
 
-func (q query) getGraphQLPayloadUserPublicProfile(username string) string {
+func (q *query) getGraphQLPayloadUserPublicProfile(username string) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query userPublicProfile($username: String!) {\n  matchedUser(username: $username) {\n    contestBadge {\n      name\n      expired\n      hoverText\n      icon\n    }\n    username\n    githubUrl\n    twitterUrl\n    linkedinUrl\n    profile {\n      ranking\n      userAvatar\n      realName\n      aboutMe\n      school\n      websites\n      countryName\n      company\n      jobTitle\n      skillTags\n      postViewCount\n      postViewCountDiff\n      reputation\n      reputationDiff\n      solutionCount\n      solutionCountDiff\n      categoryDiscussCount\n      categoryDiscussCountDiff\n    }\n  }\n}\n    ",
 	    "variables": {
@@ -136,7 +138,7 @@ func (q query) getGraphQLPayloadUserPublicProfile(username string) string {
 	}`, username)
 }
 
-func (q query) getGraphQLPayloadUserSolveCountByTag(username string) string {
+func (q *query) getGraphQLPayloadUserSolveCountByTag(username string) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query skillStats($username: String!) {\n  matchedUser(username: $username) {\n    tagProblemCounts {\n      advanced {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n      intermediate {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n      fundamental {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n    }\n  }\n}\n    ",
 	    "variables": {
@@ -154,7 +156,7 @@ func (q query) getGraphQLPayloadUserContestRankingHistory(username string) strin
 	}`, username)
 }
 
-func (q query) getGraphQLPayloadUserSolveCountByDifficulty(username string) string {
+func (q *query) getGraphQLPayloadUserSolveCountByDifficulty(username string) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query userProblemsSolved($username: String!) {\n  allQuestionsCount {\n    difficulty\n    count\n  }\n  matchedUser(username: $username) {\n    problemsSolvedBeatsStats {\n      difficulty\n      percentage\n    }\n    submitStatsGlobal {\n      acSubmissionNum {\n        difficulty\n        count\n      }\n    }\n  }\n}\n    ",
 	    "variables": {
@@ -163,7 +165,7 @@ func (q query) getGraphQLPayloadUserSolveCountByDifficulty(username string) stri
 	}`, username)
 }
 
-func (q query) getGraphQLPayloadUserProfileCalendar(username string) string {
+func (q *query) getGraphQLPayloadUserProfileCalendar(username string) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query userProfileCalendar($username: String!, $year: Int) {\n  matchedUser(username: $username) {\n    userCalendar(year: $year) {\n      activeYears\n      streak\n      totalActiveDays\n      dccBadges {\n        timestamp\n        badge {\n          name\n          icon\n        }\n      }\n      submissionCalendar\n    }\n  }\n}\n    ",
 	    "variables": {
@@ -172,7 +174,7 @@ func (q query) getGraphQLPayloadUserProfileCalendar(username string) string {
 	}`, username)
 }
 
-func (q query) getGraphQLPayloadUserRecentAcSubmissions(username string, pageSize int) string {
+func (q *query) getGraphQLPayloadUserRecentAcSubmissions(username string, pageSize int) string {
 	return fmt.Sprintf(`{
 	    "query": "\n    query recentAcSubmissions($username: String!, $limit: Int!) {\n  recentAcSubmissionList(username: $username, limit: $limit) {\n    id\n    title\n    titleSlug\n    timestamp\n  }\n}\n    ",
 	    "variables": {

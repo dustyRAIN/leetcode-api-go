@@ -3,27 +3,27 @@ package leetcodeapi
 import "log"
 
 func GetUserPublicProfile(username string) (UserPublicProfile, error) {
-	return getUserPublicProfile(username, Util{}, query{})
+	return getUserPublicProfile(username, &Util{}, &query{})
 }
 
 func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
-	return getUserSolveCountByProblemTag(username, Util{}, query{})
+	return getUserSolveCountByProblemTag(username, &Util{}, &query{})
 }
 
 func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
-	return getUserContestRankingHistory(username, Util{}, query{})
+	return getUserContestRankingHistory(username, &Util{}, &query{})
 }
 
 func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
-	return getUserSolveCountByDifficulty(username, Util{}, query{})
+	return getUserSolveCountByDifficulty(username, &Util{}, &query{})
 }
 
 func GetUserProfileCalendar(username string) (UserCalendar, error) {
-	return getUserProfileCalendar(username, Util{}, query{})
+	return getUserProfileCalendar(username, &Util{}, &query{})
 }
 
 func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
-	return getUserRecentAcSubmissions(username, pageSize, Util{}, query{})
+	return getUserRecentAcSubmissions(username, pageSize, &Util{}, &query{})
 }
 
 /*

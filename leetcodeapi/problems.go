@@ -5,19 +5,19 @@ import (
 )
 
 func GetAllProblems() (ProblemList, error) {
-	return getAllProblems(Util{}, query{})
+	return getAllProblems(&Util{}, &query{})
 }
 
 func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
-	return getProblemContentByTitleSlug(titleSlug, Util{}, query{})
+	return getProblemContentByTitleSlug(titleSlug, &Util{}, &query{})
 }
 
 func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
-	return getProblemsByTopic(topicSlug, Util{}, query{})
+	return getProblemsByTopic(topicSlug, &Util{}, &query{})
 }
 
 func GetTopInterviewProblems() (ProblemList, error) {
-	return getTopInterviewProblems(Util{}, query{})
+	return getTopInterviewProblems(&Util{}, &query{})
 }
 
 /*
