@@ -145,12 +145,14 @@ type DiscussionNode struct {
 	ViewCount int    `json:"viewCount"`
 }
 
+type DiscussionListItem struct {
+	Cursor string         `json:"cursor"`
+	Node   DiscussionNode `json:"node"`
+}
+
 type DiscussionList struct {
-	Data []struct {
-		Cursor string         `json:"cursor"`
-		Node   DiscussionNode `json:"node"`
-	} `json:"edges"`
-	TotalNum int `json:"totalNum"`
+	Data     []DiscussionListItem `json:"edges"`
+	TotalNum int                  `json:"totalNum"`
 }
 
 type discussionListResponseBody struct {
