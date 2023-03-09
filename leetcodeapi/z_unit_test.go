@@ -302,3 +302,153 @@ func (s *discussionsSuite) TestGetCommentRepliess() {
 		s.Assert().Error(err, "error error")
 	})
 }
+
+//----------------------------------------problems-------------------------------------------
+
+type problemsSuite struct {
+	suite.Suite
+	utilsMock   *IUtilMock
+	queriesMock *IQueryMock
+}
+
+func TestProblemsService(t *testing.T) {
+	suite.Run(t, &problemsSuite{})
+}
+
+func (s *problemsSuite) SetupSubTest() {
+	s.utilsMock = new(IUtilMock)
+	s.queriesMock = new(IQueryMock)
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadAllProblems",
+		&problemsetListResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*problemsetListResponseBody)
+		arg.Data.ProblemsetQuestionList.Problems = []Problem{{}, {}}
+		arg.Data.ProblemsetQuestionList.Total = 2
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadProblemContent",
+		&problemContentResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*problemContentResponseBody)
+		arg.Data.Question = ProblemContent{
+			Content: "what a content",
+		}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadProblemsByTopic",
+		&problemsByTopicResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*problemsByTopicResponseBody)
+		arg.Data.TopicTag.TopicName = "topic is unnecessary"
+		arg.Data.TopicTag.Questions = []Problem{{}, {}}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadTopInterviewProblems",
+		&problemsetListResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*problemsetListResponseBody)
+		arg.Data.ProblemsetQuestionList.Problems = []Problem{{}, {}}
+		arg.Data.ProblemsetQuestionList.Total = 2
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"takeError",
+		mock.Anything,
+	).Return(errors.New("ha ha ha"))
+}
+
+func (s *problemsSuite) TestGetAllProblems() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadAllProblems").Return("getGraphQLPayloadAllProblems")
+		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems()
+		s.Assert().Nil(err)
+		s.Assert().IsType(ProblemList{}, result)
+		expected := ProblemList{
+			Problems: []Problem{{}, {}},
+			Total:    2,
+		}
+		s.Assert().Equal(expected.Total, result.Total)
+		s.Assert().ElementsMatch(expected.Problems, result.Problems)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadAllProblems").Return("takeError")
+		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems()
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "ha ha ha")
+	})
+}
+
+func (s *problemsSuite) TestGetProblemContentByTitleSlug() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadProblemContent", "schizophrenia").Return("getGraphQLPayloadProblemContent")
+		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getProblemContentByTitleSlug("schizophrenia")
+		s.Assert().Nil(err)
+		s.Assert().IsType(ProblemContent{}, result)
+		expected := ProblemContent{
+			Content: "what a content",
+		}
+		s.Assert().Equal(expected, result)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadProblemContent", "schizophrenia").Return("takeError")
+		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getProblemContentByTitleSlug("schizophrenia")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "ha ha ha")
+	})
+}
+
+func (s *problemsSuite) TestGetProblemsByTopic() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadProblemsByTopic", "schizophrenia").Return("getGraphQLPayloadProblemsByTopic")
+		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getProblemsByTopic("schizophrenia")
+		s.Assert().Nil(err)
+		s.Assert().IsType(ProblemsByTopic{}, result)
+		expected := ProblemsByTopic{
+			TopicName: "topic is unnecessary",
+			Questions: []Problem{{}, {}},
+		}
+		s.Assert().Equal(expected.TopicName, result.TopicName)
+		s.Assert().ElementsMatch(expected.Questions, result.Questions)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadProblemsByTopic", "schizophrenia").Return("takeError")
+		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getProblemsByTopic("schizophrenia")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "ha ha ha")
+	})
+}
+
+func (s *problemsSuite) TestGetTopInterviewProblems() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems").Return("getGraphQLPayloadTopInterviewProblems")
+		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems()
+		s.Assert().Nil(err)
+		s.Assert().IsType(ProblemList{}, result)
+		expected := ProblemList{
+			Problems: []Problem{{}, {}},
+			Total:    2,
+		}
+		s.Assert().Equal(expected.Total, result.Total)
+		s.Assert().ElementsMatch(expected.Problems, result.Problems)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems").Return("takeError")
+		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems()
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "ha ha ha")
+	})
+}
