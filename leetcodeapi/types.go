@@ -348,15 +348,15 @@ type DifficultyPercentage struct {
 }
 
 type UserSolveCountByDifficulty struct {
-	ProblemsSolvedBeatsStats []DifficultyPercentage `json:"problemsSolvedBeatsStats"`
-	SubmitStatsGlobal        struct {
+	BeatsStats        []DifficultyPercentage `json:"problemsSolvedBeatsStats"`
+	SubmitStatsGlobal struct {
 		AcSubmissionNum []DifficultyCount `json:"acSubmissionNum"`
 	} `json:"submitStatsGlobal"`
 }
 
 type UserSolveCountByDifficultyDetails struct {
-	AllQuestionsCount     []DifficultyCount          `json:"allQuestionsCount"`
-	MatchedUserSolveCount UserSolveCountByDifficulty `json:"matchedUser"`
+	AllQuestionsCount []DifficultyCount          `json:"allQuestionsCount"`
+	SolveCount        UserSolveCountByDifficulty `json:"matchedUser"`
 }
 
 type userSolveCountByDifficultyResponseBody struct {
