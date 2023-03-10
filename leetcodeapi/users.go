@@ -3,37 +3,48 @@ package leetcodeapi
 import "log"
 
 func GetUserPublicProfile(username string) (UserPublicProfile, error) {
-	return getUserPublicProfile(username, &Util{}, &query{})
+	utils := &Util{}
+	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserPublicProfile(username)
 }
 
 func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
-	return getUserSolveCountByProblemTag(username, &Util{}, &query{})
+	utils := &Util{}
+	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserSolveCountByProblemTag(username)
 }
 
 func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
-	return getUserContestRankingHistory(username, &Util{}, &query{})
+	utils := &Util{}
+	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserContestRankingHistory(username)
 }
 
 func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
-	return getUserSolveCountByDifficulty(username, &Util{}, &query{})
+	utils := &Util{}
+	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserSolveCountByDifficulty(username)
 }
 
 func GetUserProfileCalendar(username string) (UserCalendar, error) {
-	return getUserProfileCalendar(username, &Util{}, &query{})
+	utils := &Util{}
+	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserProfileCalendar(username)
 }
 
 func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
-	return getUserRecentAcSubmissions(username, pageSize, &Util{}, &query{})
+	utils := &Util{}
+	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserRecentAcSubmissions(username, pageSize)
 }
 
 /*
 ---------------------------------------------------------------------------------------
 */
 
-func getUserPublicProfile(username string, utils IUtil, queries IQuery) (UserPublicProfile, error) {
+type usersService struct {
+	utils   IUtil
+	queries IQuery
+}
+
+func (u *usersService) getUserPublicProfile(username string) (UserPublicProfile, error) {
 	var result userPublicProfileReponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadUserPublicProfile(username),
+	err := u.utils.MakeGraphQLRequest(
+		u.queries.getGraphQLPayloadUserPublicProfile(username),
 		&result,
 	)
 
@@ -45,10 +56,10 @@ func getUserPublicProfile(username string, utils IUtil, queries IQuery) (UserPub
 	return result.Data.MatchedUser, nil
 }
 
-func getUserSolveCountByProblemTag(username string, utils IUtil, queries IQuery) (TagProblemCounts, error) {
+func (u *usersService) getUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
 	var result userSolveCountByTagResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadUserSolveCountByTag(username),
+	err := u.utils.MakeGraphQLRequest(
+		u.queries.getGraphQLPayloadUserSolveCountByTag(username),
 		&result,
 	)
 
@@ -60,10 +71,10 @@ func getUserSolveCountByProblemTag(username string, utils IUtil, queries IQuery)
 	return result.Data.MatchedUser.TagProblemCounts, nil
 }
 
-func getUserContestRankingHistory(username string, utils IUtil, queries IQuery) (UserContestRankingDetails, error) {
+func (u *usersService) getUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
 	var result userContestRankingHistoryResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadUserContestRankingHistory(username),
+	err := u.utils.MakeGraphQLRequest(
+		u.queries.getGraphQLPayloadUserContestRankingHistory(username),
 		&result,
 	)
 
@@ -75,10 +86,10 @@ func getUserContestRankingHistory(username string, utils IUtil, queries IQuery) 
 	return result.Data, nil
 }
 
-func getUserSolveCountByDifficulty(username string, utils IUtil, queries IQuery) (UserSolveCountByDifficultyDetails, error) {
+func (u *usersService) getUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
 	var result userSolveCountByDifficultyResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadUserSolveCountByDifficulty(username),
+	err := u.utils.MakeGraphQLRequest(
+		u.queries.getGraphQLPayloadUserSolveCountByDifficulty(username),
 		&result,
 	)
 
@@ -90,10 +101,10 @@ func getUserSolveCountByDifficulty(username string, utils IUtil, queries IQuery)
 	return result.Data, nil
 }
 
-func getUserProfileCalendar(username string, utils IUtil, queries IQuery) (UserCalendar, error) {
+func (u *usersService) getUserProfileCalendar(username string) (UserCalendar, error) {
 	var result userProfileCalendarResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadUserProfileCalendar(username),
+	err := u.utils.MakeGraphQLRequest(
+		u.queries.getGraphQLPayloadUserProfileCalendar(username),
 		&result,
 	)
 
@@ -105,10 +116,10 @@ func getUserProfileCalendar(username string, utils IUtil, queries IQuery) (UserC
 	return result.Data.MatchedUser.UserCalendar, nil
 }
 
-func getUserRecentAcSubmissions(username string, pageSize int, utils IUtil, queries IQuery) ([]AcSubmission, error) {
+func (u *usersService) getUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
 	var result userRecentAcSubmissionsResponseBody
-	err := utils.MakeGraphQLRequest(
-		queries.getGraphQLPayloadUserRecentAcSubmissions(username, pageSize),
+	err := u.utils.MakeGraphQLRequest(
+		u.queries.getGraphQLPayloadUserRecentAcSubmissions(username, pageSize),
 		&result,
 	)
 
