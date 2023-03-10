@@ -690,3 +690,234 @@ func (s *usersSuite) TestGetUserRecentAcSubmissions() {
 		s.Assert().Error(err, "oniket prantor")
 	})
 }
+
+//-------------------------------queries-------------------------------
+
+type queriesSuite struct {
+	suite.Suite
+	utilsMock *IUtilMock
+}
+
+func TestQueryService(t *testing.T) {
+	suite.Run(t, &queriesSuite{})
+}
+
+func (s *queriesSuite) SetupSubTest() {
+	s.utilsMock = new(IUtilMock)
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadAllProblems() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadAllProblems()
+		expected := `{
+		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      questionId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      stats\n      topicTags {\n        name\n        id\n        slug\n      }\n      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
+		"variables": {
+			"categorySlug": "",
+			"skip": 0,
+			"limit": 50,
+			"filters": {}
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadProblemContent() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadProblemContent("Nemesis - kobe")
+		expected := `{
+		"query": "\n    query questionContent($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    content\n    mysqlSchemas\n  }\n}\n    ",
+		"variables": {
+			"titleSlug": "Nemesis - kobe"
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadProblemsByTopic() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadProblemsByTopic("Google")
+		expected := `{
+		"operationName": "getTopicTag",
+		"variables": {
+			"slug": "Google"
+		},
+		"query": "query getTopicTag($slug: String!) {\n  topicTag(slug: $slug) {\n    name\n    slug\n    questions {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      questionId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      stats\n      topicTags {\n        name\n        id\n        slug\n      }\n     companyTags {\n        name\n        slug\n        }\n      }\n    frequencies\n      }\n  favoritesLists {\n    publicFavorites {\n      ...favoriteFields\n          }\n    privateFavorites {\n      ...favoriteFields\n          }\n      }\n}\n\nfragment favoriteFields on FavoriteNode {\n  idHash\n  id\n  name\n  isPublicFavorite\n  viewCount\n  creator\n  isWatched\n  questions {\n    questionId\n    title\n    titleSlug\n      }\n  }\n"
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadTopInterviewProblems() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadTopInterviewProblems()
+		expected := `{
+		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      questionId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      stats\n      topicTags {\n        name\n        id\n        slug\n      }\n      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
+		"variables": {
+			"categorySlug": "",
+			"skip": 0,
+			"limit": 50,
+			"filters": {
+				"listId": "top-interview-questions"
+			}
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadDiscussionList() {
+	s.Run("should return correct value", func() {
+		s.utilsMock.On(
+			"convertListToString",
+			[]string{"item-1", "item-2"},
+		).Return(`["item-1","item-2"]`)
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadDiscussionList(
+			[]string{"item-1", "item-2"},
+			[]string{"item-1", "item-2"},
+			"top",
+			"google",
+			1,
+		)
+		expected := `{
+		"operationName": "categoryTopicList",
+		"variables": {
+			"orderBy": "top",
+			"query": "google",
+			"skip": 1,
+			"first": 15,
+			"tags": ["item-1","item-2"],
+			"categories": ["item-1","item-2"]
+		},
+		"query": "query categoryTopicList($categories: [String!]!, $first: Int!, $orderBy: TopicSortingOption, $skip: Int, $query: String, $tags: [String!]) {\n  categoryTopicList(categories: $categories, orderBy: $orderBy, skip: $skip, query: $query, first: $first, tags: $tags) {\n    ...TopicsList\n    __typename\n  }\n}\n\nfragment TopicsList on TopicConnection {\n  totalNum\n  edges {\n    node {\n      id\n      title\n      commentCount\n      viewCount\n      pinned\n      tags {\n        name\n        slug\n        __typename\n      }\n      post {\n        id\n        voteCount\n        creationDate\n        isHidden\n        author {\n          username\n          isActive\n          nameColor\n          activeBadge {\n            displayName\n            icon\n            __typename\n          }\n          profile {\n            userAvatar\n            __typename\n          }\n          __typename\n        }\n        status\n        coinRewards {\n          ...CoinReward\n          __typename\n        }\n        __typename\n      }\n      lastComment {\n        id\n        post {\n          id\n          author {\n            isActive\n            username\n            __typename\n          }\n          peek\n          creationDate\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    cursor\n    __typename\n  }\n  __typename\n}\n\nfragment CoinReward on ScoreNode {\n  id\n  score\n  description\n  date\n  __typename\n}\n"
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadDiscussion() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadDiscussion(20)
+		expected := `{
+		"operationName": "DiscussTopic",
+		"variables": {
+			"topicId": 20
+		},
+		"query": "query DiscussTopic($topicId: Int!) {\n  topic(id: $topicId) {\n    id\n    viewCount\n    topLevelCommentCount\n    subscribed\n    title\n    pinned\n    tags\n    hideFromTrending\n    post {\n      ...DiscussPost\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment DiscussPost on PostNode {\n  id\n  voteCount\n  voteStatus\n  content\n  updationDate\n  creationDate\n  status\n  isHidden\n  coinRewards {\n    ...CoinReward\n    __typename\n  }\n  author {\n    isDiscussAdmin\n    isDiscussStaff\n    username\n    nameColor\n    activeBadge {\n      displayName\n      icon\n      __typename\n    }\n    profile {\n      userAvatar\n      reputation\n      __typename\n    }\n    isActive\n    __typename\n  }\n  authorIsModerator\n  isOwnPost\n  __typename\n}\n\nfragment CoinReward on ScoreNode {\n  id\n  score\n  description\n  date\n  __typename\n}\n"
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadDiscussionComments() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadDiscussionComments(
+			20, "big brother", 2, 10,
+		)
+		expected := `{
+		"operationName": "discussComments",
+		"variables": {
+			"orderBy": "big brother",
+			"pageNo": 2,
+			"numPerPage": 10,
+			"topicId": 20
+		},
+		"query": "query discussComments($topicId: Int!, $orderBy: String = \"newest_to_oldest\", $pageNo: Int = 1, $numPerPage: Int = 10) {\n  topicComments(topicId: $topicId, orderBy: $orderBy, pageNo: $pageNo, numPerPage: $numPerPage) {\n    data {\n      id\n      pinned\n      pinnedBy {\n        username\n        __typename\n      }\n      post {\n        ...DiscussPost\n        __typename\n      }\n      numChildren\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment DiscussPost on PostNode {\n  id\n  voteCount\n  voteStatus\n  content\n  updationDate\n  creationDate\n  status\n  isHidden\n  coinRewards {\n    ...CoinReward\n    __typename\n  }\n  author {\n    isDiscussAdmin\n    isDiscussStaff\n    username\n    nameColor\n    activeBadge {\n      displayName\n      icon\n      __typename\n    }\n    profile {\n      userAvatar\n      reputation\n      __typename\n    }\n    isActive\n    __typename\n  }\n  authorIsModerator\n  isOwnPost\n  __typename\n}\n\nfragment CoinReward on ScoreNode {\n  id\n  score\n  description\n  date\n  __typename\n}\n"
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadCommentReplies() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadCommentReplies(20)
+		expected := `{
+		"operationName": "fetchCommentReplies",
+		"variables": {
+			"commentId": 20
+		},
+		"query": "query fetchCommentReplies($commentId: Int!) {\n  commentReplies(commentId: $commentId) {\n    id\n    pinned\n    pinnedBy {\n      username\n      __typename\n    }\n    post {\n      ...DiscussPost\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment DiscussPost on PostNode {\n  id\n  voteCount\n  voteStatus\n  content\n  updationDate\n  creationDate\n  status\n  isHidden\n  coinRewards {\n    ...CoinReward\n    __typename\n  }\n  author {\n    isDiscussAdmin\n    isDiscussStaff\n    username\n    nameColor\n    activeBadge {\n      displayName\n      icon\n      __typename\n    }\n    profile {\n      userAvatar\n      reputation\n      __typename\n    }\n    isActive\n    __typename\n  }\n  authorIsModerator\n  isOwnPost\n  __typename\n}\n\nfragment CoinReward on ScoreNode {\n  id\n  score\n  description\n  date\n  __typename\n}\n"
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadUserPublicProfile() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadUserPublicProfile("dustyRAIN")
+		expected := `{
+		"query": "\n    query userPublicProfile($username: String!) {\n  matchedUser(username: $username) {\n    contestBadge {\n      name\n      expired\n      hoverText\n      icon\n    }\n    username\n    githubUrl\n    twitterUrl\n    linkedinUrl\n    profile {\n      ranking\n      userAvatar\n      realName\n      aboutMe\n      school\n      websites\n      countryName\n      company\n      jobTitle\n      skillTags\n      postViewCount\n      postViewCountDiff\n      reputation\n      reputationDiff\n      solutionCount\n      solutionCountDiff\n      categoryDiscussCount\n      categoryDiscussCountDiff\n    }\n  }\n}\n    ",
+		"variables": {
+			"username": "dustyRAIN"
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadUserSolveCountByTag() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadUserSolveCountByTag("dustyRAIN")
+		expected := `{
+		"query": "\n    query skillStats($username: String!) {\n  matchedUser(username: $username) {\n    tagProblemCounts {\n      advanced {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n      intermediate {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n      fundamental {\n        tagName\n        tagSlug\n        problemsSolved\n      }\n    }\n  }\n}\n    ",
+		"variables": {
+			"username": "dustyRAIN"
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadUserContestRankingHistory() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadUserContestRankingHistory("dustyRAIN")
+		expected := `{
+		"query": "\n    query userContestRankingInfo($username: String!) {\n  userContestRanking(username: $username) {\n    attendedContestsCount\n    rating\n    globalRanking\n    totalParticipants\n    topPercentage\n    badge {\n      name\n    }\n  }\n  userContestRankingHistory(username: $username) {\n    attended\n    trendDirection\n    problemsSolved\n    totalProblems\n    finishTimeInSeconds\n    rating\n    ranking\n    contest {\n      title\n      startTime\n    }\n  }\n}\n    ",
+		"variables": {
+			"username": "dustyRAIN"
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadUserSolveCountByDifficulty() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadUserSolveCountByDifficulty("dustyRAIN")
+		expected := `{
+		"query": "\n    query userProblemsSolved($username: String!) {\n  allQuestionsCount {\n    difficulty\n    count\n  }\n  matchedUser(username: $username) {\n    problemsSolvedBeatsStats {\n      difficulty\n      percentage\n    }\n    submitStatsGlobal {\n      acSubmissionNum {\n        difficulty\n        count\n      }\n    }\n  }\n}\n    ",
+		"variables": {
+			"username": "dustyRAIN"
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadUserProfileCalendar() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadUserProfileCalendar("dustyRAIN")
+		expected := `{
+		"query": "\n    query userProfileCalendar($username: String!, $year: Int) {\n  matchedUser(username: $username) {\n    userCalendar(year: $year) {\n      activeYears\n      streak\n      totalActiveDays\n      dccBadges {\n        timestamp\n        badge {\n          name\n          icon\n        }\n      }\n      submissionCalendar\n    }\n  }\n}\n    ",
+		"variables": {
+			"username": "dustyRAIN"
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
+
+func (s *queriesSuite) TestGetGraphQLPayloadUserRecentAcSubmissions() {
+	s.Run("should return correct value", func() {
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadUserRecentAcSubmissions("dustyRAIN", 10)
+		expected := `{
+		"query": "\n    query recentAcSubmissions($username: String!, $limit: Int!) {\n  recentAcSubmissionList(username: $username, limit: $limit) {\n    id\n    title\n    titleSlug\n    timestamp\n  }\n}\n    ",
+		"variables": {
+			"username": "dustyRAIN",
+			"limit": 10
+		}
+	}`
+		s.Assert().Equal(expected, actual)
+	})
+}
