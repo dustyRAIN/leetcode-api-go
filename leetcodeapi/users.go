@@ -4,32 +4,32 @@ import "log"
 
 func GetUserPublicProfile(username string) (UserPublicProfile, error) {
 	utils := &Util{}
-	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserPublicProfile(username)
+	return (&usersService{utils: utils, queries: &queryService{utils: utils}}).getUserPublicProfile(username)
 }
 
 func GetUserSolveCountByProblemTag(username string) (TagProblemCounts, error) {
 	utils := &Util{}
-	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserSolveCountByProblemTag(username)
+	return (&usersService{utils: utils, queries: &queryService{utils: utils}}).getUserSolveCountByProblemTag(username)
 }
 
 func GetUserContestRankingHistory(username string) (UserContestRankingDetails, error) {
 	utils := &Util{}
-	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserContestRankingHistory(username)
+	return (&usersService{utils: utils, queries: &queryService{utils: utils}}).getUserContestRankingHistory(username)
 }
 
 func GetUserSolveCountByDifficulty(username string) (UserSolveCountByDifficultyDetails, error) {
 	utils := &Util{}
-	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserSolveCountByDifficulty(username)
+	return (&usersService{utils: utils, queries: &queryService{utils: utils}}).getUserSolveCountByDifficulty(username)
 }
 
 func GetUserProfileCalendar(username string) (UserCalendar, error) {
 	utils := &Util{}
-	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserProfileCalendar(username)
+	return (&usersService{utils: utils, queries: &queryService{utils: utils}}).getUserProfileCalendar(username)
 }
 
 func GetUserRecentAcSubmissions(username string, pageSize int) ([]AcSubmission, error) {
 	utils := &Util{}
-	return (&usersService{utils: utils, queries: &query{utils: utils}}).getUserRecentAcSubmissions(username, pageSize)
+	return (&usersService{utils: utils, queries: &queryService{utils: utils}}).getUserRecentAcSubmissions(username, pageSize)
 }
 
 /*

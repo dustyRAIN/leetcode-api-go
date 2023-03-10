@@ -6,22 +6,22 @@ import (
 
 func GetAllProblems() (ProblemList, error) {
 	utils := &Util{}
-	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getAllProblems()
+	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getAllProblems()
 }
 
 func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
 	utils := &Util{}
-	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getProblemContentByTitleSlug(titleSlug)
+	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getProblemContentByTitleSlug(titleSlug)
 }
 
 func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
 	utils := &Util{}
-	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getProblemsByTopic(topicSlug)
+	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getProblemsByTopic(topicSlug)
 }
 
 func GetTopInterviewProblems() (ProblemList, error) {
 	utils := &Util{}
-	return (&problemsService{utils: utils, queries: &query{utils: utils}}).getTopInterviewProblems()
+	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getTopInterviewProblems()
 }
 
 /*
