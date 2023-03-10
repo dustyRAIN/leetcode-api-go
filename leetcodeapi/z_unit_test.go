@@ -452,3 +452,241 @@ func (s *problemsSuite) TestGetTopInterviewProblems() {
 		s.Assert().Error(err, "ha ha ha")
 	})
 }
+
+//----------------------------------------users-------------------------------------------
+
+type usersSuite struct {
+	suite.Suite
+	utilsMock   *IUtilMock
+	queriesMock *IQueryMock
+}
+
+func TestUsersService(t *testing.T) {
+	suite.Run(t, &usersSuite{})
+}
+
+func (s *usersSuite) SetupSubTest() {
+	s.utilsMock = new(IUtilMock)
+	s.queriesMock = new(IQueryMock)
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadUserPublicProfile",
+		&userPublicProfileReponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*userPublicProfileReponseBody)
+		arg.Data.MatchedUser = UserPublicProfile{
+			Username: "tourist",
+		}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadUserSolveCountByTag",
+		&userSolveCountByTagResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*userSolveCountByTagResponseBody)
+		arg.Data.MatchedUser.TagProblemCounts.Advanced = []TagCount{
+			{ProblemsSolved: 100, TagName: "name", TagSlug: "slug"},
+			{ProblemsSolved: 1, TagName: "n", TagSlug: "s"},
+		}
+		arg.Data.MatchedUser.TagProblemCounts.Fundamental = []TagCount{
+			{ProblemsSolved: 23, TagName: "name", TagSlug: "slug"},
+		}
+		arg.Data.MatchedUser.TagProblemCounts.Intermediate = []TagCount{
+			{ProblemsSolved: 253, TagName: "name", TagSlug: "slug"},
+		}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadUserContestRankingHistory",
+		&userContestRankingHistoryResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*userContestRankingHistoryResponseBody)
+		arg.Data = UserContestRankingDetails{
+			UserContestRanking:        UserContestRanking{GlobalRanking: 1},
+			UserContestRankingHistory: []UserContestRankingHistory{{Ranking: 1}, {Ranking: 2}},
+		}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadUserSolveCountByDifficulty",
+		&userSolveCountByDifficultyResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*userSolveCountByDifficultyResponseBody)
+		arg.Data.SolveCount.BeatsStats = []DifficultyPercentage{{}}
+		arg.Data.SolveCount.SubmitStatsGlobal.AcSubmissionNum = []DifficultyCount{{}}
+		arg.Data.AllQuestionsCount = []DifficultyCount{{}}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadUserProfileCalendar",
+		&userProfileCalendarResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*userProfileCalendarResponseBody)
+		arg.Data.MatchedUser.UserCalendar = UserCalendar{
+			TotalActiveDays: 20,
+		}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"getGraphQLPayloadUserRecentAcSubmissions",
+		&userRecentAcSubmissionsResponseBody{},
+	).Return(nil).Run(func(args mock.Arguments) {
+		arg := args.Get(1).(*userRecentAcSubmissionsResponseBody)
+		arg.Data.RecentAcSubmissionList = []AcSubmission{
+			{Title: "tor jonno akash theke peja"},
+			{Title: "ek tukro megh enechi veja"},
+		}
+	})
+
+	s.utilsMock.On(
+		"MakeGraphQLRequest",
+		"takeError",
+		mock.Anything,
+	).Return(errors.New("oniket prantor"))
+}
+
+func (s *usersSuite) TestGetUserPublicProfile() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserPublicProfile", "tourist").Return("getGraphQLPayloadUserPublicProfile")
+		result, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserPublicProfile("tourist")
+		s.Assert().Nil(err)
+		s.Assert().IsType(UserPublicProfile{}, result)
+		expected := UserPublicProfile{
+			Username: "tourist",
+		}
+		s.Assert().Equal(expected, result)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserPublicProfile", "tourist").Return("takeError")
+		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserPublicProfile("tourist")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "oniket prantor")
+	})
+}
+
+func (s *usersSuite) TestGetUserSolveCountByProblemTag() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserSolveCountByTag", "tourist").Return("getGraphQLPayloadUserSolveCountByTag")
+		result, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserSolveCountByProblemTag("tourist")
+		s.Assert().Nil(err)
+		s.Assert().IsType(TagProblemCounts{}, result)
+		expected := TagProblemCounts{
+			Advanced: []TagCount{
+				{ProblemsSolved: 100, TagName: "name", TagSlug: "slug"},
+				{ProblemsSolved: 1, TagName: "n", TagSlug: "s"},
+			},
+			Fundamental: []TagCount{
+				{ProblemsSolved: 23, TagName: "name", TagSlug: "slug"},
+			},
+			Intermediate: []TagCount{
+				{ProblemsSolved: 253, TagName: "name", TagSlug: "slug"},
+			},
+		}
+		s.Assert().ElementsMatch(expected.Advanced, result.Advanced)
+		s.Assert().ElementsMatch(expected.Fundamental, result.Fundamental)
+		s.Assert().ElementsMatch(expected.Intermediate, result.Intermediate)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserSolveCountByTag", "tourist").Return("takeError")
+		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserSolveCountByProblemTag("tourist")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "oniket prantor")
+	})
+}
+
+func (s *usersSuite) TestGetUserContestRankingHistory() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserContestRankingHistory", "tourist").Return("getGraphQLPayloadUserContestRankingHistory")
+		result, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserContestRankingHistory("tourist")
+		s.Assert().Nil(err)
+		s.Assert().IsType(UserContestRankingDetails{}, result)
+		expected := UserContestRankingDetails{
+			UserContestRanking:        UserContestRanking{GlobalRanking: 1},
+			UserContestRankingHistory: []UserContestRankingHistory{{Ranking: 2}, {Ranking: 1}},
+		}
+		s.Assert().Equal(expected.UserContestRanking, result.UserContestRanking)
+		s.Assert().ElementsMatch(expected.UserContestRankingHistory, result.UserContestRankingHistory)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserContestRankingHistory", "tourist").Return("takeError")
+		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserContestRankingHistory("tourist")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "oniket prantor")
+	})
+}
+
+func (s *usersSuite) TestGetUserSolveCountByDifficulty() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserSolveCountByDifficulty", "tourist").Return("getGraphQLPayloadUserSolveCountByDifficulty")
+		result, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserSolveCountByDifficulty("tourist")
+		s.Assert().Nil(err)
+		s.Assert().IsType(UserSolveCountByDifficultyDetails{}, result)
+		expected := UserSolveCountByDifficultyDetails{
+			SolveCount: UserSolveCountByDifficulty{
+				BeatsStats: []DifficultyPercentage{{}},
+			},
+			AllQuestionsCount: []DifficultyCount{{}},
+		}
+		expected.SolveCount.SubmitStatsGlobal.AcSubmissionNum = []DifficultyCount{{}}
+		s.Assert().ElementsMatch(expected.SolveCount.BeatsStats, result.SolveCount.BeatsStats)
+		s.Assert().ElementsMatch(expected.SolveCount.SubmitStatsGlobal.AcSubmissionNum, result.SolveCount.SubmitStatsGlobal.AcSubmissionNum)
+		s.Assert().ElementsMatch(expected.AllQuestionsCount, result.AllQuestionsCount)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserSolveCountByDifficulty", "tourist").Return("takeError")
+		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserSolveCountByDifficulty("tourist")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "oniket prantor")
+	})
+}
+
+func (s *usersSuite) TestGetUserProfileCalendar() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserProfileCalendar", "tourist").Return("getGraphQLPayloadUserProfileCalendar")
+		result, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserProfileCalendar("tourist")
+		s.Assert().Nil(err)
+		s.Assert().IsType(UserCalendar{}, result)
+		expected := UserCalendar{
+			TotalActiveDays: 20,
+		}
+		s.Assert().Equal(expected, result)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserProfileCalendar", "tourist").Return("takeError")
+		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserProfileCalendar("tourist")
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "oniket prantor")
+	})
+}
+
+func (s *usersSuite) TestGetUserRecentAcSubmissions() {
+	s.Run("should execute without an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserRecentAcSubmissions", "tourist", 2).Return("getGraphQLPayloadUserRecentAcSubmissions")
+		result, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserRecentAcSubmissions("tourist", 2)
+		s.Assert().Nil(err)
+		s.Assert().IsType([]AcSubmission{}, result)
+		expected := []AcSubmission{
+			{Title: "tor jonno akash theke peja"},
+			{Title: "ek tukro megh enechi veja"},
+		}
+		s.Assert().ElementsMatch(expected, result)
+	})
+
+	s.Run("should execute with an error", func() {
+		s.queriesMock.On("getGraphQLPayloadUserRecentAcSubmissions", "tourist", 2).Return("takeError")
+		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserRecentAcSubmissions("tourist", 2)
+		s.Assert().NotNil(err)
+		s.Assert().Error(err, "oniket prantor")
+	})
+}
