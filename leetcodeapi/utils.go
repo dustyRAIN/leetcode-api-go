@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
+
+var globalServerUrl string
 
 type IUtil interface {
 	parseCookie(cookies []*http.Cookie, cookieName string) string
@@ -27,6 +30,10 @@ func (u *Util) parseCookie(cookies []*http.Cookie, cookieName string) string {
 }
 
 func (u *Util) makeHttpRequest(method string, url string, body string, resultRef interface{}) error {
+	env, found := os.LookupEnv("LEETCODEAPI_ENV")
+	if found && env == "test" && globalServerUrl != "" {
+		url = globalServerUrl // there has to be a better way
+	}
 	client := &http.Client{}
 	request, err := http.NewRequest(method, url, strings.NewReader(body))
 	if err != nil {
