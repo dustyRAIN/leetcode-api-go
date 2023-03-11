@@ -3,14 +3,14 @@ package leetcodeapi
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
 
 type IUtil interface {
 	parseCookie(cookies []*http.Cookie, cookieName string) string
-	makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error
+	makeHttpRequest(method string, url string, body string, resultRef interface{}) error
 	MakeGraphQLRequest(payload string, resultRef interface{}) error
 	convertListToString(list []string) string
 }
@@ -26,7 +26,7 @@ func (u *Util) parseCookie(cookies []*http.Cookie, cookieName string) string {
 	return ""
 }
 
-func (u *Util) makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error {
+func (u *Util) makeHttpRequest(method string, url string, body string, resultRef interface{}) error {
 	client := &http.Client{}
 	request, err := http.NewRequest(method, url, strings.NewReader(body))
 	if err != nil {
@@ -45,7 +45,7 @@ func (u *Util) makeHttpRequest(method string, url string, contentType string, bo
 	if err != nil {
 		return err
 	}
-	responseBodyBytes, _ := ioutil.ReadAll(response.Body)
+	responseBodyBytes, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
@@ -61,7 +61,6 @@ func (u *Util) MakeGraphQLRequest(payload string, resultRef interface{}) error {
 	err := u.makeHttpRequest(
 		"GET",
 		"https://leetcode.com/graphql/",
-		"application/json",
 		payload,
 		&resultRef,
 	)

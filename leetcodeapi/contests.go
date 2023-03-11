@@ -27,7 +27,6 @@ func (c *contestService) getContestInfo(contestSlug string) (Contest, error) {
 	err := c.utils.makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/info/%v/", contestSlug),
-		"application/json",
 		"",
 		&result,
 	)
@@ -45,7 +44,6 @@ func (c *contestService) getContestRanking(contestSlug string, page int) (Contes
 	err := c.utils.makeHttpRequest(
 		"GET",
 		fmt.Sprintf("https://leetcode.com/contest/api/ranking/%v/?pagination=%v&region=global", contestSlug, page),
-		"application/json",
 		"",
 		&result,
 	)
