@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+//--------------------------------------contest---------------------------------------------
+
 type contestsSuite struct {
 	suite.Suite
 }
@@ -110,6 +112,8 @@ func (s *contestsSuite) TestGetContestRanking() {
 	s.Assert().Nil(err)
 	s.Assert().Equal(expected, result)
 }
+
+//--------------------------------------discussion---------------------------------------------
 
 type discussionsSuite struct {
 	suite.Suite
@@ -257,6 +261,160 @@ func (s *discussionsSuite) TestGetCommentReplies() {
 	defer server.Close()
 
 	result, err := leetcodeapi.GetCommentReplies(10)
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+//--------------------------------------problem---------------------------------------------
+
+type problemsSuite struct {
+	suite.Suite
+}
+
+func TestProblemsSuite(t *testing.T) {
+	suite.Run(t, &problemsSuite{})
+}
+
+func (s *problemsSuite) SetupTest() {
+	err := os.Setenv("LEETCODEAPI_ENV", "test")
+	s.Assert().Nil(err)
+}
+
+func (s *problemsSuite) TearDownTest() {
+	err := os.Unsetenv("LEETCODEAPI_ENV")
+	s.Assert().Nil(err)
+}
+
+func (s *problemsSuite) TestGetAllProblems() {
+	responseBody := []byte(`{
+		"data": {
+			"problemsetQuestionList": {
+				"total": 1,
+				"questions": [
+					{
+						"acRate": 23.21,
+						"difficulty": "difficulty",
+						"isFavor": false,
+						"title": "title"
+					}
+				]
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.ProblemList{
+		Total: 1,
+		Problems: []leetcodeapi.Problem{
+			{
+				AcRate:     23.21,
+				Difficulty: "difficulty",
+				IsFavor:    false,
+				Title:      "title",
+			},
+		},
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetAllProblems()
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *problemsSuite) TestGetProblemContentByTitleSlug() {
+	responseBody := []byte(`{
+		"data": {
+			"question": {
+				"content": "problem content"
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.ProblemContent{
+		Content: "problem content",
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetProblemContentByTitleSlug("overthinking")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *problemsSuite) TestGetProblemsByTopic() {
+	responseBody := []byte(`{
+		"data": {
+			"topicTag": {
+				"name": "name",
+				"slug": "slug",
+				"questions": [{
+					"acRate": 23.21,
+					"difficulty": "difficulty",
+					"isFavor": false,
+					"title": "title"
+				}]
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.ProblemsByTopic{
+		TopicName: "name",
+		TopicSlug: "slug",
+		Questions: []leetcodeapi.Problem{{
+			AcRate:     23.21,
+			Difficulty: "difficulty",
+			IsFavor:    false,
+			Title:      "title",
+		}},
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetProblemsByTopic("no trust")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *problemsSuite) TestGetTopInterviewProblems() {
+	responseBody := []byte(`{
+		"data": {
+			"problemsetQuestionList": {
+				"total": 1,
+				"questions": [
+					{
+						"acRate": 23.21,
+						"difficulty": "difficulty",
+						"isFavor": false,
+						"title": "title"
+					}
+				]
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.ProblemList{
+		Total: 1,
+		Problems: []leetcodeapi.Problem{
+			{
+				AcRate:     23.21,
+				Difficulty: "difficulty",
+				IsFavor:    false,
+				Title:      "title",
+			},
+		},
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetTopInterviewProblems()
 
 	s.Assert().Nil(err)
 	s.Assert().Equal(expected, result)
