@@ -1,4 +1,4 @@
-module dustyRAIN/leetcode-api-go
+module github.com/dustyRAIN/leetcode-api-go
 
 go 1.20
 

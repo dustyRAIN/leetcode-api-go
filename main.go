@@ -1,8 +1,9 @@
 package main
 
 import (
-	"dustyRAIN/leetcode-api-go/leetcodeapi"
 	"fmt"
+
+	"github.com/dustyRAIN/leetcode-api-go/leetcodeapi"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 	//fmt.Println(leetcodeapi.GetProblemsByTopic("hash-table"))
 	//fmt.Println(leetcodeapi.GetTopInterviewProblems())
 	//fmt.Println(leetcodeapi.GetContestInfo("weekly-contest-333"))
-	//fmt.Println(leetcodeapi.GetContestRanking("weekly-contest-333", 1))
+	fmt.Println(leetcodeapi.GetContestRanking("weekly-contest-333", 1))
 	//fmt.Println(leetcodeapi.GetDiscussions([]string{"interview-experience"}, []string{}, "", "google", 0))
 	//fmt.Println(leetcodeapi.GetDiscussion(1674246))
 	//fmt.Println(leetcodeapi.GetDiscussionComments(2069641, "best", 0, 10))
@@ -22,5 +23,5 @@ func main() {
 	//fmt.Println(leetcodeapi.GetUserContestRankingHistory("dustyRAIN"))
 	//fmt.Println(leetcodeapi.GetUserSolveCountByDifficulty("dustyRAIN"))
 	//fmt.Println(leetcodeapi.GetUserProfileCalendar("dustyRAIN"))
-	fmt.Println(leetcodeapi.GetUserRecentAcSubmissions("dustyRAIN", 100))
+	//fmt.Println(leetcodeapi.GetUserRecentAcSubmissions("dustyRAIN", 100))
 }
