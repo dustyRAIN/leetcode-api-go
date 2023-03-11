@@ -2,6 +2,8 @@ package leetcodeapi
 
 import (
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -25,11 +27,10 @@ func (s *contestsTestSuite) SetupSubTest() {
 		"makeHttpRequest",
 		"GET",
 		"https://leetcode.com/contest/api/info/contest-12/",
-		"application/json",
 		"",
 		&Contest{},
 	).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(4).(*Contest)
+		arg := args.Get(3).(*Contest)
 		arg.Company.Description = "description"
 		arg.Company.Logo = "logo"
 		arg.Company.Name = "name"
@@ -40,7 +41,6 @@ func (s *contestsTestSuite) SetupSubTest() {
 		"makeHttpRequest",
 		"GET",
 		"https://leetcode.com/contest/api/info/gimme-error/",
-		"application/json",
 		"",
 		&Contest{},
 	).Return(errors.New("some error"))
@@ -49,11 +49,10 @@ func (s *contestsTestSuite) SetupSubTest() {
 		"makeHttpRequest",
 		"GET",
 		"https://leetcode.com/contest/api/ranking/contest-12/?pagination=2&region=global",
-		"application/json",
 		"",
 		&ContestRanking{},
 	).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(4).(*ContestRanking)
+		arg := args.Get(3).(*ContestRanking)
 		arg.IsPast = true
 		arg.TotalUser = 120
 	})
@@ -62,7 +61,6 @@ func (s *contestsTestSuite) SetupSubTest() {
 		"makeHttpRequest",
 		"GET",
 		"https://leetcode.com/contest/api/ranking/gimme-error/?pagination=2&region=global",
-		"application/json",
 		"",
 		&ContestRanking{},
 	).Return(errors.New("ow no"))
@@ -84,7 +82,7 @@ func (s *contestsTestSuite) TestGetContestInfo() {
 	s.Run("should execute getContestInfo returning with an error", func() {
 		_, err := (&contestService{utils: s.utilsMock}).getContestInfo("gimme-error")
 		s.Assert().NotNil(err)
-		s.Assert().EqualError(err, "some error")
+		s.Assert().Equal(err.Error(), "some error")
 	})
 }
 
@@ -103,7 +101,7 @@ func (s *contestsTestSuite) TestGetContestRanking() {
 	s.Run("should execute getContestRanking returning with an error", func() {
 		_, err := (&contestService{utils: s.utilsMock}).getContestRanking("gimme-error", 2)
 		s.Assert().NotNil(err)
-		s.Assert().EqualError(err, "ow no")
+		s.Assert().Equal(err.Error(), "ow no")
 	})
 }
 
@@ -249,7 +247,7 @@ func (s *discussionsSuite) TestGetDiscussions() {
 	s.Run("should execute getDiscussions returning with an error", func() {
 		_, err := (&discussionService{utils: s.utilsMock, queries: s.queriesMock}).getDiscussions([]string{}, []string{}, "", "neederror", 0)
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "error error")
+		s.Assert().Equal(err.Error(), "error error")
 	})
 }
 
@@ -267,7 +265,7 @@ func (s *discussionsSuite) TestGetDiscussion() {
 	s.Run("should execute getDiscussion returning with an error", func() {
 		_, err := (&discussionService{utils: s.utilsMock, queries: s.queriesMock}).getDiscussion(-1)
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "error error")
+		s.Assert().Equal(err.Error(), "error error")
 	})
 }
 
@@ -283,7 +281,7 @@ func (s *discussionsSuite) TestGetDiscussionComments() {
 	s.Run("should execute getDiscussionComments with an error", func() {
 		_, err := (&discussionService{utils: s.utilsMock, queries: s.queriesMock}).getDiscussionComments(10, "neederror", 1, 1)
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "error error")
+		s.Assert().Equal(err.Error(), "error error")
 	})
 }
 
@@ -299,7 +297,7 @@ func (s *discussionsSuite) TestGetCommentRepliess() {
 	s.Run("should execute getCommentReplies with an error", func() {
 		_, err := (&discussionService{utils: s.utilsMock, queries: s.queriesMock}).getCommentReplies(-1)
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "error error")
+		s.Assert().Equal(err.Error(), "error error")
 	})
 }
 
@@ -385,7 +383,7 @@ func (s *problemsSuite) TestGetAllProblems() {
 		s.queriesMock.On("getGraphQLPayloadAllProblems").Return("takeError")
 		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems()
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "ha ha ha")
+		s.Assert().Equal(err.Error(), "ha ha ha")
 	})
 }
 
@@ -405,7 +403,7 @@ func (s *problemsSuite) TestGetProblemContentByTitleSlug() {
 		s.queriesMock.On("getGraphQLPayloadProblemContent", "schizophrenia").Return("takeError")
 		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getProblemContentByTitleSlug("schizophrenia")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "ha ha ha")
+		s.Assert().Equal(err.Error(), "ha ha ha")
 	})
 }
 
@@ -427,7 +425,7 @@ func (s *problemsSuite) TestGetProblemsByTopic() {
 		s.queriesMock.On("getGraphQLPayloadProblemsByTopic", "schizophrenia").Return("takeError")
 		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getProblemsByTopic("schizophrenia")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "ha ha ha")
+		s.Assert().Equal(err.Error(), "ha ha ha")
 	})
 }
 
@@ -449,7 +447,7 @@ func (s *problemsSuite) TestGetTopInterviewProblems() {
 		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems").Return("takeError")
 		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems()
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "ha ha ha")
+		s.Assert().Equal(err.Error(), "ha ha ha")
 	})
 }
 
@@ -567,7 +565,7 @@ func (s *usersSuite) TestGetUserPublicProfile() {
 		s.queriesMock.On("getGraphQLPayloadUserPublicProfile", "tourist").Return("takeError")
 		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserPublicProfile("tourist")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "oniket prantor")
+		s.Assert().Equal(err.Error(), "oniket prantor")
 	})
 }
 
@@ -598,7 +596,7 @@ func (s *usersSuite) TestGetUserSolveCountByProblemTag() {
 		s.queriesMock.On("getGraphQLPayloadUserSolveCountByTag", "tourist").Return("takeError")
 		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserSolveCountByProblemTag("tourist")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "oniket prantor")
+		s.Assert().Equal(err.Error(), "oniket prantor")
 	})
 }
 
@@ -620,7 +618,7 @@ func (s *usersSuite) TestGetUserContestRankingHistory() {
 		s.queriesMock.On("getGraphQLPayloadUserContestRankingHistory", "tourist").Return("takeError")
 		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserContestRankingHistory("tourist")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "oniket prantor")
+		s.Assert().Equal(err.Error(), "oniket prantor")
 	})
 }
 
@@ -646,7 +644,7 @@ func (s *usersSuite) TestGetUserSolveCountByDifficulty() {
 		s.queriesMock.On("getGraphQLPayloadUserSolveCountByDifficulty", "tourist").Return("takeError")
 		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserSolveCountByDifficulty("tourist")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "oniket prantor")
+		s.Assert().Equal(err.Error(), "oniket prantor")
 	})
 }
 
@@ -666,7 +664,7 @@ func (s *usersSuite) TestGetUserProfileCalendar() {
 		s.queriesMock.On("getGraphQLPayloadUserProfileCalendar", "tourist").Return("takeError")
 		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserProfileCalendar("tourist")
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "oniket prantor")
+		s.Assert().Equal(err.Error(), "oniket prantor")
 	})
 }
 
@@ -687,7 +685,7 @@ func (s *usersSuite) TestGetUserRecentAcSubmissions() {
 		s.queriesMock.On("getGraphQLPayloadUserRecentAcSubmissions", "tourist", 2).Return("takeError")
 		_, err := (&usersService{utils: s.utilsMock, queries: s.queriesMock}).getUserRecentAcSubmissions("tourist", 2)
 		s.Assert().NotNil(err)
-		s.Assert().Error(err, "oniket prantor")
+		s.Assert().Equal(err.Error(), "oniket prantor")
 	})
 }
 
@@ -919,5 +917,73 @@ func (s *queriesSuite) TestGetGraphQLPayloadUserRecentAcSubmissions() {
 		}
 	}`
 		s.Assert().Equal(expected, actual)
+	})
+}
+
+//-------------------------------utils-------------------------------
+
+type utilsSuite struct {
+	suite.Suite
+	mockedServer *httptest.Server
+}
+
+type sampleResponse struct {
+	Foo string `json:"foo"`
+}
+
+func TestUtilsSuite(t *testing.T) {
+	suite.Run(t, &utilsSuite{})
+}
+
+func (s *utilsSuite) TestParseCookie() {
+	cookieSet := []*http.Cookie{
+		{
+			Name:  "x-user-id",
+			Value: "user-id",
+		},
+		{
+			Name:  "on-loop-song",
+			Value: "aftermath-moho",
+		},
+	}
+
+	s.Run("should return correct cookie value", func() {
+		cookieValue := (&Util{}).parseCookie(cookieSet, "on-loop-song")
+		s.Assert().Equal("aftermath-moho", cookieValue)
+	})
+
+	s.Run("should return empty cookie value", func() {
+		cookieValue := (&Util{}).parseCookie(cookieSet, "hahaha")
+		s.Assert().Equal("", cookieValue)
+	})
+}
+
+func (s *utilsSuite) TestMakeHttpRequest() {
+	s.Run("should make http call and parse response body successfully", func() {
+		s.mockedServer = GetMockedHttpServer([]byte(`{"foo": "bar"}`), 200)
+		defer s.mockedServer.Close()
+		var resultRef sampleResponse
+		err := (&Util{}).makeHttpRequest("GET", s.mockedServer.URL, "", &resultRef)
+		s.Assert().Nil(err)
+		s.Assert().Equal(sampleResponse{Foo: "bar"}, resultRef)
+	})
+
+	s.Run("should return error for >400 response code", func() {
+		s.mockedServer = GetMockedHttpServer([]byte(`"error": "ghum ashe na ae ae ae"`), 403)
+		defer s.mockedServer.Close()
+		var resultRef interface{}
+		err := (&Util{}).makeHttpRequest("GET", s.mockedServer.URL, "", &resultRef)
+		s.Assert().NotNil(err)
+		expected := `statusCode: 403
+message: "error": "ghum ashe na ae ae ae"`
+		s.Assert().Equal(err.Error(), expected)
+	})
+}
+
+func (s *utilsSuite) TestConvertListToString() {
+	s.Run("should convert string slice to string of list", func() {
+		slice := []string{"mango", "banana"}
+		list := (&Util{}).convertListToString(slice)
+		s.Assert().Equal(`["mango","banana"]`, list)
 	})
 }
