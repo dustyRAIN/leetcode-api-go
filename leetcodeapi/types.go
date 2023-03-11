@@ -5,11 +5,17 @@ type leetcodeMeta struct {
 	csrfToken string
 }
 
+type Company struct {
+	Description string `json:"description"`
+	Logo        string `json:"logo"`
+	Name        string `json:"name"`
+}
+
 type ContestMeta struct {
 	Description     string `json:"description"`
-	DiscussTopicId  int    `json:"discuss_topic_id"`
-	Duration        int    `json:"duration"`
-	Id              int    `json:"id"`
+	DiscussTopicId  int64  `json:"discuss_topic_id"`
+	Duration        int64  `json:"duration"`
+	Id              int64  `json:"id"`
 	IsPrivate       bool   `json:"is_private"`
 	IsVirtual       bool   `json:"is_virtual"`
 	OriginStartTime int64  `json:"origin_start_time"`
@@ -27,11 +33,7 @@ type ContestProblemInfo struct {
 }
 
 type Contest struct {
-	Company struct {
-		Description string `json:"description"`
-		Logo        string `json:"logo"`
-		Name        string `json:"name"`
-	} `json:"company"`
+	Company         Company              `json:"company"`
 	ContainsPremium bool                 `json:"containsPremium"`
 	ContestMeta     ContestMeta          `json:"contest"`
 	Questions       []ContestProblemInfo `json:"questions"`
