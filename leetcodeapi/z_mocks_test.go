@@ -300,8 +300,10 @@ func NewIQueryMock(t mockConstructorTestingTNewIQueryMock) *IQueryMock {
 }
 
 func GetMockedHttpServer(responseBody []byte, statusCode int) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(statusCode)
 		w.Write(responseBody)
 	}))
+	globalServerUrl = server.URL
+	return server
 }
