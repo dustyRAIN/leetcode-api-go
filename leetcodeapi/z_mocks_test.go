@@ -2,6 +2,7 @@ package leetcodeapi
 
 import (
 	http "net/http"
+	"net/http/httptest"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -40,12 +41,12 @@ func (_m *IUtilMock) convertListToString(list []string) string {
 }
 
 // makeHttpRequest provides a mock function with given fields: method, url, contentType, body, resultRef
-func (_m *IUtilMock) makeHttpRequest(method string, url string, contentType string, body string, resultRef interface{}) error {
-	ret := _m.Called(method, url, contentType, body, resultRef)
+func (_m *IUtilMock) makeHttpRequest(method string, url string, body string, resultRef interface{}) error {
+	ret := _m.Called(method, url, body, resultRef)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string, string, interface{}) error); ok {
-		r0 = rf(method, url, contentType, body, resultRef)
+	if rf, ok := ret.Get(0).(func(string, string, string, interface{}) error); ok {
+		r0 = rf(method, url, body, resultRef)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -296,4 +297,11 @@ func NewIQueryMock(t mockConstructorTestingTNewIQueryMock) *IQueryMock {
 	t.Cleanup(func() { mock.AssertExpectations(t) })
 
 	return mock
+}
+
+func GetMockedHttpServer(responseBody []byte, statusCode int) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(statusCode)
+		w.Write(responseBody)
+	}))
 }
