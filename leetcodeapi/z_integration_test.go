@@ -419,3 +419,251 @@ func (s *problemsSuite) TestGetTopInterviewProblems() {
 	s.Assert().Nil(err)
 	s.Assert().Equal(expected, result)
 }
+
+//--------------------------------------users---------------------------------------------
+
+type usersSuite struct {
+	suite.Suite
+}
+
+func TestUsersSuite(t *testing.T) {
+	suite.Run(t, &usersSuite{})
+}
+
+func (s *usersSuite) SetupTest() {
+	err := os.Setenv("LEETCODEAPI_ENV", "test")
+	s.Assert().Nil(err)
+}
+
+func (s *usersSuite) TearDownTest() {
+	err := os.Unsetenv("LEETCODEAPI_ENV")
+	s.Assert().Nil(err)
+}
+
+func (s *usersSuite) TestGetUserPublicProfile() {
+	responseBody := []byte(`{
+		"data": {
+			"matchedUser": {
+				"githubUrl": "githubUrl",
+				"linkedinUrl": "linkedinUrl",
+				"profile": {
+					"aboutMe": "aboutMe",
+					"categoryDiscussCount": 4,
+					"company": "company",
+					"countryName": "countryName",
+					"jobTitle": "jobTitle"
+				},
+				"twitterUrl": "twitterUrl",
+				"username": "username"
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.UserPublicProfile{
+		GithubUrl:   "githubUrl",
+		LinkedinUrl: "linkedinUrl",
+		Profile: leetcodeapi.UserProfile{
+			AboutMe:              "aboutMe",
+			CategoryDiscussCount: 4,
+			Company:              "company",
+			CountryName:          "countryName",
+			JobTitle:             "jobTitle",
+		},
+		TwitterUrl: "twitterUrl",
+		Username:   "username",
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetUserPublicProfile("tourist")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *usersSuite) TestGetUserSolveCountByProblemTag() {
+	responseBody := []byte(`{
+		"data": {
+			"matchedUser": {
+				"tagProblemCounts": {
+					"advanced": [{
+						"problemsSolved": 1,
+						"tagName": "tag1"
+					}],
+					"fundamental": [{
+						"problemsSolved": 2,
+						"tagName": "tag2"
+					}]
+				}
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.TagProblemCounts{
+		Advanced: []leetcodeapi.TagCount{{
+			ProblemsSolved: 1,
+			TagName:        "tag1",
+		}},
+		Fundamental: []leetcodeapi.TagCount{{
+			ProblemsSolved: 2,
+			TagName:        "tag2",
+		}},
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetUserSolveCountByProblemTag("tourist")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *usersSuite) TestGetUserContestRankingHistory() {
+	responseBody := []byte(`{
+		"data": {
+			"userContestRanking": {
+				"globalRanking": 2,
+				"rating": 23.5,
+				"topPercentage": 21.5,
+				"totalParticipants": 2
+			},
+			"userContestRankingHistory": [{
+				"attended": false,
+				"contest": {
+					"title": "title"
+				},
+				"totalProblems": 2
+			}]
+		}
+	}`)
+
+	expected := leetcodeapi.UserContestRankingDetails{
+		UserContestRanking: leetcodeapi.UserContestRanking{
+			GlobalRanking:     2,
+			Rating:            23.5,
+			TopPercentage:     21.5,
+			TotalParticipants: 2,
+		},
+		UserContestRankingHistory: []leetcodeapi.UserContestRankingHistory{{
+			Attended:      false,
+			TotalProblems: 2,
+		}},
+	}
+	expected.UserContestRankingHistory[0].Contest.Title = "title"
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetUserContestRankingHistory("tourist")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *usersSuite) TestGetUserSolveCountByDifficulty() {
+	responseBody := []byte(`{
+		"data": {
+			"allQuestionsCount": [{
+				"count": 2,
+				"difficulty": "hard"
+			}],
+			"matchedUser": {
+				"problemsSolvedBeatsStats": [{
+					"percentage": 20.2,
+					"difficulty": "hard"
+				}],
+				"submitStatsGlobal": {
+					"acSubmissionNum": [{
+						"count": 2,
+						"difficulty": "hard"
+					}]
+				}
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.UserSolveCountByDifficultyDetails{
+		AllQuestionsCount: []leetcodeapi.DifficultyCount{{
+			Count:      2,
+			Difficulty: "hard",
+		}},
+		SolveCount: leetcodeapi.UserSolveCountByDifficulty{
+			BeatsStats: []leetcodeapi.DifficultyPercentage{{
+				Percentage: 20.2,
+				Difficulty: "hard",
+			}},
+		},
+	}
+	expected.SolveCount.SubmitStatsGlobal.AcSubmissionNum = []leetcodeapi.DifficultyCount{{
+		Count:      2,
+		Difficulty: "hard",
+	}}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetUserSolveCountByDifficulty("tourist")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *usersSuite) TestGetUserProfileCalendar() {
+	responseBody := []byte(`{
+		"data": {
+			"matchedUser": {
+				"userCalendar": {
+					"activeYears": [2021, 2022],
+					"streak": 3,
+					"submissionCalendar": "nice way to store it",
+					"totalActiveDays": 3
+				}
+			}
+		}
+	}`)
+
+	expected := leetcodeapi.UserCalendar{
+		ActiveYears:        []int{2021, 2022},
+		Streak:             3,
+		SubmissionCalendar: "nice way to store it",
+		TotalActiveDays:    3,
+	}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetUserProfileCalendar("tourist")
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
+
+func (s *usersSuite) TestGetUserRecentAcSubmissions() {
+	responseBody := []byte(`{
+		"data": {
+			"recentAcSubmissionList": [{
+				"id": "id",
+				"timestamp": "timestamp",
+				"title": "title",
+				"titleSlug": "titleSlug"
+			}]
+		}
+	}`)
+
+	expected := []leetcodeapi.AcSubmission{{
+		Id:        "id",
+		Timestamp: "timestamp",
+		Title:     "title",
+		TitleSlug: "titleSlug",
+	}}
+
+	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
+	defer server.Close()
+
+	result, err := leetcodeapi.GetUserRecentAcSubmissions("tourist", 2)
+
+	s.Assert().Nil(err)
+	s.Assert().Equal(expected, result)
+}
