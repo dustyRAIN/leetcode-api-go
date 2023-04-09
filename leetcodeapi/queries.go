@@ -5,10 +5,10 @@ import "fmt"
 const problemCommonFields = `\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      questionId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      stats\n      topicTags {\n        name\n        id\n        slug\n      }\n`
 
 type IQuery interface {
-	getGraphQLPayloadAllProblems() string
+	getGraphQLPayloadAllProblems(offset int, pageSize int) string
 	getGraphQLPayloadProblemContent(titleSlug string) string
 	getGraphQLPayloadProblemsByTopic(topicStag string) string
-	getGraphQLPayloadTopInterviewProblems() string
+	getGraphQLPayloadTopInterviewProblems(offset int, pageSize int) string
 	getGraphQLPayloadDiscussionList(categories []string, tags []string, orderBy string, searchQuery string, offset int) string
 	getGraphQLPayloadDiscussion(topicId int64) string
 	getGraphQLPayloadDiscussionComments(topicId int64, orderBy string, offset int, pageSize int) string
@@ -25,16 +25,16 @@ type queryService struct {
 	utils IUtil
 }
 
-func (q *queryService) getGraphQLPayloadAllProblems() string {
+func (q *queryService) getGraphQLPayloadAllProblems(offset int, pageSize int) string {
 	return fmt.Sprintf(`{
 		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {%v      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
 		"variables": {
 			"categorySlug": "",
-			"skip": 0,
-			"limit": 50,
+			"skip": %v,
+			"limit": %v,
 			"filters": {}
 		}
-	}`, problemCommonFields)
+	}`, problemCommonFields, offset, pageSize)
 }
 
 func (q *queryService) getGraphQLPayloadProblemContent(titleSlug string) string {
@@ -56,18 +56,18 @@ func (q *queryService) getGraphQLPayloadProblemsByTopic(topicStag string) string
 	}`, topicStag, problemCommonFields)
 }
 
-func (q *queryService) getGraphQLPayloadTopInterviewProblems() string {
+func (q *queryService) getGraphQLPayloadTopInterviewProblems(offset int, pageSize int) string {
 	return fmt.Sprintf(`{
 		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {%v      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
 		"variables": {
 			"categorySlug": "",
-			"skip": 0,
-			"limit": 50,
+			"skip": %v,
+			"limit": %v,
 			"filters": {
 				"listId": "top-interview-questions"
 			}
 		}
-	}`, problemCommonFields)
+	}`, problemCommonFields, offset, pageSize)
 }
 
 func (q *queryService) getGraphQLPayloadDiscussionList(categories []string, tags []string, orderBy string, searchQuery string, offset int) string {

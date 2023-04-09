@@ -318,7 +318,7 @@ func (s *problemsSuite) TestGetAllProblems() {
 	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
 	defer server.Close()
 
-	result, err := leetcodeapi.GetAllProblems()
+	result, err := leetcodeapi.GetAllProblems(0, 20)
 
 	s.Assert().Nil(err)
 	s.Assert().Equal(expected, result)
@@ -414,7 +414,7 @@ func (s *problemsSuite) TestGetTopInterviewProblems() {
 	server := leetcodeapi.GetMockedHttpServer(responseBody, 200)
 	defer server.Close()
 
-	result, err := leetcodeapi.GetTopInterviewProblems()
+	result, err := leetcodeapi.GetTopInterviewProblems(0, 10)
 
 	s.Assert().Nil(err)
 	s.Assert().Equal(expected, result)
