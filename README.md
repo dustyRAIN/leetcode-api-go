@@ -43,7 +43,7 @@ import (
 
 func DoSomething() {
   var allProblemList leetcodeapi.ProblemList
-  allProblemList, err := leetcodeapi.GetAllProblems()
+  allProblemList, err := leetcodeapi.GetAllProblems(0, 50)
 }
 ```
 
@@ -66,10 +66,10 @@ func DoSomething() {
 ## Available APIs Related to Leetcode Problems Page
 
 ```go
-  leetcodeapi.GetAllProblems() (leetcodeapi.ProblemList, error)
+  leetcodeapi.GetAllProblems(offset int, pageSize int) (leetcodeapi.ProblemList, error)
   leetcodeapi.GetProblemContentByTitleSlug(titleSlug string) (leetcodeapi.ProblemContent, error)
   leetcodeapi.GetProblemsByTopic(topicSlug string) (leetcodeapi.ProblemsByTopic, error)
-  leetcodeapi.GetTopInterviewProblems() (leetcodeapi.ProblemList, error)
+  leetcodeapi.GetTopInterviewProblems(offset int, pageSize int) (leetcodeapi.ProblemList, error)
 ```
 
 ## Available APIs Related to Leetcode Users Page
