@@ -4,9 +4,9 @@ import (
 	"log"
 )
 
-func GetAllProblems() (ProblemList, error) {
+func GetAllProblems(offset int, pageSize int) (ProblemList, error) {
 	utils := &Util{}
-	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getAllProblems()
+	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getAllProblems(offset, pageSize)
 }
 
 func GetProblemContentByTitleSlug(titleSlug string) (ProblemContent, error) {
@@ -19,9 +19,9 @@ func GetProblemsByTopic(topicSlug string) (ProblemsByTopic, error) {
 	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getProblemsByTopic(topicSlug)
 }
 
-func GetTopInterviewProblems() (ProblemList, error) {
+func GetTopInterviewProblems(offset int, pageSize int) (ProblemList, error) {
 	utils := &Util{}
-	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getTopInterviewProblems()
+	return (&problemsService{utils: utils, queries: &queryService{utils: utils}}).getTopInterviewProblems(offset, pageSize)
 }
 
 /*
@@ -33,9 +33,9 @@ type problemsService struct {
 	queries IQuery
 }
 
-func (p *problemsService) getAllProblems() (ProblemList, error) {
+func (p *problemsService) getAllProblems(offset int, pageSize int) (ProblemList, error) {
 	var result problemsetListResponseBody
-	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadAllProblems(), &result)
+	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadAllProblems(offset, pageSize), &result)
 
 	if err != nil {
 		log.Print(err.Error())
@@ -69,9 +69,9 @@ func (p *problemsService) getProblemsByTopic(topicSlug string) (ProblemsByTopic,
 	return result.Data.TopicTag, nil
 }
 
-func (p *problemsService) getTopInterviewProblems() (ProblemList, error) {
+func (p *problemsService) getTopInterviewProblems(offset int, pageSize int) (ProblemList, error) {
 	var result problemsetListResponseBody
-	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadTopInterviewProblems(), &result)
+	err := p.utils.MakeGraphQLRequest(p.queries.getGraphQLPayloadTopInterviewProblems(offset, pageSize), &result)
 
 	if err != nil {
 		log.Print(err.Error())

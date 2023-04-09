@@ -367,8 +367,8 @@ func (s *problemsSuite) SetupSubTest() {
 
 func (s *problemsSuite) TestGetAllProblems() {
 	s.Run("should execute without an error", func() {
-		s.queriesMock.On("getGraphQLPayloadAllProblems").Return("getGraphQLPayloadAllProblems")
-		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems()
+		s.queriesMock.On("getGraphQLPayloadAllProblems", 0, 30).Return("getGraphQLPayloadAllProblems")
+		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems(0, 30)
 		s.Assert().Nil(err)
 		s.Assert().IsType(ProblemList{}, result)
 		expected := ProblemList{
@@ -380,8 +380,8 @@ func (s *problemsSuite) TestGetAllProblems() {
 	})
 
 	s.Run("should execute with an error", func() {
-		s.queriesMock.On("getGraphQLPayloadAllProblems").Return("takeError")
-		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems()
+		s.queriesMock.On("getGraphQLPayloadAllProblems", 0, 30).Return("takeError")
+		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getAllProblems(0, 30)
 		s.Assert().NotNil(err)
 		s.Assert().Equal(err.Error(), "ha ha ha")
 	})
@@ -431,8 +431,8 @@ func (s *problemsSuite) TestGetProblemsByTopic() {
 
 func (s *problemsSuite) TestGetTopInterviewProblems() {
 	s.Run("should execute without an error", func() {
-		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems").Return("getGraphQLPayloadTopInterviewProblems")
-		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems()
+		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems", 0, 40).Return("getGraphQLPayloadTopInterviewProblems")
+		result, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems(0, 40)
 		s.Assert().Nil(err)
 		s.Assert().IsType(ProblemList{}, result)
 		expected := ProblemList{
@@ -444,8 +444,8 @@ func (s *problemsSuite) TestGetTopInterviewProblems() {
 	})
 
 	s.Run("should execute with an error", func() {
-		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems").Return("takeError")
-		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems()
+		s.queriesMock.On("getGraphQLPayloadTopInterviewProblems", 0, 40).Return("takeError")
+		_, err := (&problemsService{utils: s.utilsMock, queries: s.queriesMock}).getTopInterviewProblems(0, 40)
 		s.Assert().NotNil(err)
 		s.Assert().Equal(err.Error(), "ha ha ha")
 	})
@@ -706,13 +706,13 @@ func (s *queriesSuite) SetupSubTest() {
 
 func (s *queriesSuite) TestGetGraphQLPayloadAllProblems() {
 	s.Run("should return correct value", func() {
-		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadAllProblems()
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadAllProblems(0, 70)
 		expected := `{
 		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      questionId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      stats\n      topicTags {\n        name\n        id\n        slug\n      }\n      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
 		"variables": {
 			"categorySlug": "",
 			"skip": 0,
-			"limit": 50,
+			"limit": 70,
 			"filters": {}
 		}
 	}`
@@ -749,13 +749,13 @@ func (s *queriesSuite) TestGetGraphQLPayloadProblemsByTopic() {
 
 func (s *queriesSuite) TestGetGraphQLPayloadTopInterviewProblems() {
 	s.Run("should return correct value", func() {
-		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadTopInterviewProblems()
+		actual := (&queryService{utils: s.utilsMock}).getGraphQLPayloadTopInterviewProblems(5, 80)
 		expected := `{
 		"query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      questionId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      stats\n      topicTags {\n        name\n        id\n        slug\n      }\n      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ",
 		"variables": {
 			"categorySlug": "",
-			"skip": 0,
-			"limit": 50,
+			"skip": 5,
+			"limit": 80,
 			"filters": {
 				"listId": "top-interview-questions"
 			}

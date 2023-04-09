@@ -89,8 +89,8 @@ type IQueryMock struct {
 }
 
 // getGraphQLPayloadAllProblems provides a mock function with given fields:
-func (_m *IQueryMock) getGraphQLPayloadAllProblems() string {
-	ret := _m.Called()
+func (_m *IQueryMock) getGraphQLPayloadAllProblems(offset int, pageSize int) string {
+	ret := _m.Called(offset, pageSize)
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func() string); ok {
@@ -187,8 +187,8 @@ func (_m *IQueryMock) getGraphQLPayloadProblemsByTopic(topicStag string) string 
 }
 
 // getGraphQLPayloadTopInterviewProblems provides a mock function with given fields:
-func (_m *IQueryMock) getGraphQLPayloadTopInterviewProblems() string {
-	ret := _m.Called()
+func (_m *IQueryMock) getGraphQLPayloadTopInterviewProblems(offset int, pageSize int) string {
+	ret := _m.Called(offset, pageSize)
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func() string); ok {
